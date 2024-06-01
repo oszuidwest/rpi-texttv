@@ -7,6 +7,7 @@ sudo apt upgrade -y
 # Installeer benodigde pakketten
 sudo apt install --no-install-recommends xserver-xorg x11-xserver-utils xinit openbox unclutter -y # X Server
 sudo apt install chromium-browser -y # Browser
+sudo apt install ttf-mscorefonts-installer # Fonts
 
 # Openbox configureren
 mkdir -p ~/.config/openbox
@@ -15,9 +16,6 @@ cat <<EOL > ~/.config/openbox/autostart
 xset -dpms            # Disable DPMS (Energy Star) features.
 xset s off            # Disable screen saver.
 xset s noblank        # Don't blank the video device.
-
-# Start VNC server
-vncserver :1 -geometry 1920x1080 -depth 24
 
 # Start Chromium in fullscreen mode
 chromium-browser --start-fullscreen --app=https://www.zuidwesttv.nl/
