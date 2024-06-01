@@ -36,6 +36,9 @@ sudo raspi-config nonint do_boot_behaviour B2
 # VNC configureren via raspi-config (headless)
 sudo raspi-config nonint do_vnc 0
 
+# Opruimen
+sudo apt autoremove -y
+
 # Reboot om wijzigingen toe te passen
 echo "Configuratie voltooid. Het systeem zal nu opnieuw opstarten."
 sudo reboot
