@@ -20,8 +20,7 @@ PACKAGES=(
 
 for PACKAGE in "${PACKAGES[@]}"; do
     echo "Installing $PACKAGE..."
-    sudo apt install --no-install-recommends -y "$PACKAGE"
-    if [ $? -ne 0 ]; then
+    if ! sudo apt install --no-install-recommends -y "$PACKAGE"; then
         echo "Error installing $PACKAGE"
         exit 1
     fi
@@ -30,7 +29,7 @@ done
 # Setup Fallback Wallpaper
 WALLPAPER_URL="https://raw.githubusercontent.com/oszuidwest/windows10-baseline/main/assets/ZWTV-wallpaper.png"
 sudo mkdir -p /var/fallback
-sudo wget $WALLPAPER_URL -O /var/fallback/fallback.png
+sudo wget "$WALLPAPER_URL" -O /var/fallback/fallback.png
 
 # Configure Openbox
 mkdir -p ~/.config/openbox
