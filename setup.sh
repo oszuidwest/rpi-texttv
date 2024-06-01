@@ -1,14 +1,31 @@
 #!/bin/bash
 
-# Update System
-sudo apt update && sudo apt upgrade -y
+# Update package list
+sudo apt update
 
 # Install Necessary Packages
-sudo apt install --no-install-recommends -y \
-    xserver-xorg x11-xserver-utils xinit openbox unclutter \
-    chromium-browser feh \
-    ttf-mscorefonts-installer fonts-crosextra-carlito fonts-crosextra-caladea \
-    realvnc-server
+PACKAGES=(
+    xserver-xorg
+    x11-xserver-utils
+    xinit
+    openbox
+    unclutter
+    chromium-browser
+    feh
+    ttf-mscorefonts-installer
+    fonts-crosextra-carlito
+    fonts-crosextra-caladea
+    realvnc-vnc-server
+)
+
+for PACKAGE in "${PACKAGES[@]}"; do
+    echo "Installing $PACKAGE..."
+    sudo apt install --no-install-recommends -y "$PACKAGE"
+    if [ $? -ne 0 ]; then
+        echo "Error installing $PACKAGE"
+        exit 1
+    fi
+done
 
 # Setup Fallback Wallpaper
 WALLPAPER_URL="https://raw.githubusercontent.com/oszuidwest/windows10-baseline/main/assets/ZWTV-wallpaper.png"
