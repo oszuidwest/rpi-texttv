@@ -17,6 +17,8 @@ The `setup.sh` script performs the following tasks:
 
 ## Usage
 
+First, install Raspberry Pi OS Bookworm (64-bit) and log in as a non-privileged user. Do not switch to or use su/sudo for root access. Run the following command:
+
    ```bash
    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/oszuidwest/rpi-encoder/main/install.sh)".
    ```
