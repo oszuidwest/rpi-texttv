@@ -17,22 +17,8 @@ The `setup.sh` script performs the following tasks:
 
 ## Usage
 
-1. **Clone the Repository**
-
    ```bash
-   git clone https://github.com/yourusername/raspberry-pi-kiosk-setup.git
-   cd raspberry-pi-kiosk-setup
-   ```
-
-2. **Modify Variables**
-
-   If needed, modify the `WALLPAPER_URL` and `CHROME_URL` variables in the `setup.sh` script to your preferred wallpaper and web page URL.
-
-3. **Run the Script**
-
-   ```bash
-   chmod +x setup.sh
-   ./setup.sh
+   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/oszuidwest/rpi-encoder/main/install.sh)".
    ```
 
    This will execute the script, install necessary packages, and configure the Raspberry Pi for kiosk mode.
