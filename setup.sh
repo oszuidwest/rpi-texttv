@@ -7,7 +7,7 @@ sudo apt upgrade -y
 # Installeer benodigde pakketten
 sudo apt install --no-install-recommends xserver-xorg x11-xserver-utils xinit openbox unclutter -y # X Server
 sudo apt install chromium-browser -y # Browser
-sudo apt install ttf-mscorefonts-installer # Fonts
+sudo apt install ttf-mscorefonts-installer fonts-crosextra-carlito fonts-crosextra-caladea # Fonts
 
 # Openbox configureren
 mkdir -p ~/.config/openbox
