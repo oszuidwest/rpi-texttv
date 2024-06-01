@@ -17,8 +17,8 @@ xset -dpms            # Disable DPMS (Energy Star) features.
 xset s off            # Disable screen saver.
 xset s noblank        # Don't blank the video device.
 
-# Start Chromium in fullscreen mode
-chromium-browser --start-fullscreen --app=https://www.zuidwesttv.nl/
+# Start Chromium in kiosk mode
+chromium-browser --kiosk --noerrdialogs --disable-infobars --disable-session-crashed-bubble --disable-features=TranslateUI --app=https://teksttv.zuidwesttv.nl/ --incognito --disable-extensions --disable-background-networking --disable-background-timer-throttling --disable-client-side-phishing-detection --disable-default-apps --disable-hang-monitor --disable-popup-blocking --disable-prompt-on-repost --disable-sync --metrics-recording-only --no-first-run --no-default-browser-check --disable-component-update --disable-backgrounding-occluded-windows --disable-renderer-backgrounding --disable-background-timer-throttling
 EOL
 
 chmod +x ~/.config/openbox/autostart
