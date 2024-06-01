@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# TODO: Ask the user for urls using the functions lib
+
 # Variables
 WALLPAPER_URL="https://raw.githubusercontent.com/oszuidwest/windows10-baseline/main/assets/ZWTV-wallpaper.png"
 CHROME_URL="https://teksttv.zuidwesttv.nl/"
