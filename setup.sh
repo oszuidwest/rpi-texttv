@@ -1,25 +1,27 @@
 #!/bin/bash
 
-# Update systeem
-sudo apt update
-sudo apt upgrade -y
+# Update System
+sudo apt update && sudo apt upgrade -y
 
-# Installeer benodigde pakketten
-sudo apt install --no-install-recommends xserver-xorg x11-xserver-utils xinit openbox unclutter -y # X Server
-sudo apt install chromium-browser feh -y # Browser and fallback image
-sudo apt install ttf-mscorefonts-installer fonts-crosextra-carlito fonts-crosextra-caladea -y # Fonts
+# Install Necessary Packages
+sudo apt install --no-install-recommends -y \
+    xserver-xorg x11-xserver-utils xinit openbox unclutter \
+    chromium-browser feh \
+    ttf-mscorefonts-installer fonts-crosextra-carlito fonts-crosextra-caladea \
+    realvnc-server
 
-# Fallback downloaden
+# Setup Fallback Wallpaper
+WALLPAPER_URL="https://raw.githubusercontent.com/oszuidwest/windows10-baseline/main/assets/ZWTV-wallpaper.png"
 sudo mkdir -p /var/fallback
-sudo wget https://raw.githubusercontent.com/oszuidwest/windows10-baseline/main/assets/ZWTV-wallpaper.png -O /var/fallback/fallback.png
+sudo wget $WALLPAPER_URL -O /var/fallback/fallback.png
 
-# Openbox configureren
+# Configure Openbox
 mkdir -p ~/.config/openbox
-cat <<EOL > ~/.config/openbox/autostart
+cat << 'EOF' > ~/.config/openbox/autostart
 #!/bin/bash
-xset -dpms            # Disable DPMS (Energy Star) features.
-xset s off            # Disable screen saver.
-xset s noblank        # Don't blank the video device.
+xset -dpms          # Disable DPMS (Energy Star) features.
+xset s off          # Disable screen saver.
+xset s noblank      # Don't blank the video device.
 
 # Hide the mouse cursor when idle
 unclutter -idle 0 &
@@ -27,31 +29,35 @@ unclutter -idle 0 &
 # Display the fallback image as a background using feh
 feh --fullscreen /var/fallback/fallback.png &
 
-# Give feh some time to start
+# Wait for feh to start
 sleep 5
 
 # Start Chromium in kiosk mode
-chromium-browser --kiosk --noerrdialogs --disable-infobars --disable-session-crashed-bubble --disable-features=TranslateUI --app=https://teksttv.zuidwesttv.nl/ --incognito --disable-extensions --disable-background-networking --disable-background-timer-throttling --disable-client-side-phishing-detection --disable-default-apps --disable-hang-monitor --disable-popup-blocking --disable-prompt-on-repost --disable-sync --metrics-recording-only --no-first-run --no-default-browser-check --disable-component-update --disable-backgrounding-occluded-windows --disable-renderer-backgrounding --disable-background-timer-throttling
-EOL
+chromium-browser --kiosk --noerrdialogs --disable-infobars --disable-session-crashed-bubble \
+    --disable-features=TranslateUI --app=https://teksttv.zuidwesttv.nl/ --incognito \
+    --disable-extensions --disable-background-networking --disable-background-timer-throttling \
+    --disable-client-side-phishing-detection --disable-default-apps --disable-hang-monitor \
+    --disable-popup-blocking --disable-prompt-on-repost --disable-sync --metrics-recording-only \
+    --no-first-run --no-default-browser-check --disable-component-update \
+    --disable-backgrounding-occluded-windows --disable-renderer-backgrounding
+EOF
 
 chmod +x ~/.config/openbox/autostart
 
-# Automatisch X11 en VNC starten bij opstarten
-cat <<EOL >> ~/.profile
-if [ -z "\$DISPLAY" ] && [ "\$(tty)" = "/dev/tty1" ]; then
+# Enable X11 and VNC on Boot
+cat << 'EOF' >> ~/.profile
+if [ -z "$DISPLAY" ] && [ "$(tty)" = "/dev/tty1" ]; then
     startx
 fi
-EOL
+EOF
 
-# Configureer automatische aanmelding
+# Configure Automatic Login and VNC
 sudo raspi-config nonint do_boot_behaviour B2
-
-# VNC configureren via raspi-config (headless)
 sudo raspi-config nonint do_vnc 0
 
-# Opruimen
+# Clean Up
 sudo apt autoremove -y
 
-# Reboot om wijzigingen toe te passen
-echo "Configuratie voltooid. Het systeem zal nu opnieuw opstarten."
+# Reboot System
+echo "Configuration complete. The system will now reboot."
 sudo reboot
