@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Variables
+WALLPAPER_URL="https://raw.githubusercontent.com/oszuidwest/windows10-baseline/main/assets/ZWTV-wallpaper.png"
+CHROME_URL="https://teksttv.zuidwesttv.nl/"
+
 # Update package list
 sudo apt update
 
@@ -27,13 +31,12 @@ for PACKAGE in "${PACKAGES[@]}"; do
 done
 
 # Setup Fallback Wallpaper
-WALLPAPER_URL="https://raw.githubusercontent.com/oszuidwest/windows10-baseline/main/assets/ZWTV-wallpaper.png"
 sudo mkdir -p /var/fallback
 sudo wget "$WALLPAPER_URL" -O /var/fallback/fallback.png
 
 # Configure Openbox
 mkdir -p ~/.config/openbox
-cat << 'EOF' > ~/.config/openbox/autostart
+cat << EOF > ~/.config/openbox/autostart
 #!/bin/bash
 xset -dpms          # Disable DPMS (Energy Star) features.
 xset s off          # Disable screen saver.
@@ -50,7 +53,7 @@ sleep 5
 
 # Start Chromium in kiosk mode
 chromium-browser --kiosk --noerrdialogs --disable-infobars --disable-session-crashed-bubble \
-    --disable-features=TranslateUI --app=https://teksttv.zuidwesttv.nl/ --incognito \
+    --disable-features=TranslateUI --app=$CHROME_URL --incognito \
     --disable-extensions --disable-background-networking --disable-background-timer-throttling \
     --disable-client-side-phishing-detection --disable-default-apps --disable-hang-monitor \
     --disable-popup-blocking --disable-prompt-on-repost --disable-sync --metrics-recording-only \
