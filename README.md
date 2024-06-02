@@ -20,14 +20,14 @@ The `setup.sh` script performs the following tasks:
 First, install Raspberry Pi OS Bookworm (64-bit) and log in as a non-privileged user. Do not switch to or use `su`/`sudo` for root access. Run the following command:
 
    ```bash
-   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/oszuidwest/rpi-encoder/main/install.sh)".
+   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/oszuidwest/rpi-teksttv/main/install.sh)".
    ```
 
    This will execute the script, install necessary packages, and configure the Raspberry Pi for kiosk mode.
 
 ## Customization
 
-You can customize the script to use a different wallpaper or web page by modifying the `WALLPAPER_URL` and `CHROME_URL` variables at the beginning of the `setup.sh` script.
+You can customize the script to use a different wallpaper or web page by modifying the `WALLPAPER_URL` and `CHROME_URL` variables at the beginning of the `install.sh` script.
 
 ```bash
 WALLPAPER_URL="your_custom_wallpaper_url"
