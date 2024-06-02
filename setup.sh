@@ -38,8 +38,6 @@ check_rpi_model 4
 # Timezone configuration
 set_timezone Europe/Amsterdam
 
-
-
 # Banner
 cat << "EOF"
  ______   _ ___ ______        _______ ____ _____   _______     __
@@ -52,7 +50,6 @@ EOF
 # Greeting
 echo -e "${GREEN}⎎ Raspberry Pi Kiosk set-up${NC}\n\n"
 ask_user "DO_UPDATES" "y" "Do you want to perform all OS updates? (y/n)" "y/n"
-ask_user "USE_ST" "n" "Do you want to use StereoTool for sound processing? (y/n)" "y/n"
 
 # Update OS
 if [ "$DO_UPDATES" == "y" ]; then
