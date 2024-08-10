@@ -20,7 +20,7 @@ if ! curl -s -o "$FUNCTIONS_LIB_PATH" "$FUNCTIONS_LIB_URL"; then
 fi
 
 # Source the functions file
-# shellcheck source=/tmp/functions.sh
+# shellcheck source=/dev/null
 source "$FUNCTIONS_LIB_PATH"
 
 # Set color variables
