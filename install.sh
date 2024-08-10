@@ -8,9 +8,9 @@ CHROME_URL="https://teksttv.zuidwesttv.nl/"
 FUNCTIONS_LIB_PATH="/tmp/functions.sh"
 FUNCTIONS_LIB_URL="https://raw.githubusercontent.com/oszuidwest/bash-functions/main/common-functions.sh"
 
-# General Raspberry Pi configuration
-CONFIG_FILE_PATHS=("/boot/firmware/config.txt" "/boot/config.txt")
-FIRST_IP=$(hostname -I | awk '{print $1}')
+# General Raspberry Pi configuration (might be used later but we're not using this so keep the linter happy)
+#CONFIG_FILE_PATHS=("/boot/firmware/config.txt" "/boot/config.txt")
+#FIRST_IP=$(hostname -I | awk '{print $1}')
 
 # Remove old functions library and download the latest version
 rm -f "$FUNCTIONS_LIB_PATH"
