@@ -9,7 +9,7 @@ This setup is designed for Raspberry Pi 4 or newer models and is compatible only
 To get started, install Raspberry Pi OS Bookworm (64-bit) and log in as a non-privileged user. It's important to avoid using `su` or `sudo` for root access during this process. Run the following command to execute the setup script:
 
    ```bash
-   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/oszuidwest/rpi-teksttv/main/install.sh)".
+   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/oszuidwest/rpi-texttv/main/install.sh)".
    ```
 
 This command will download and run the script, automatically installing the necessary packages and configuring your Raspberry Pi for kiosk mode.
