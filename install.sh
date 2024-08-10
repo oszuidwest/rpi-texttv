@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+# Variables (Change these)
+WALLPAPER_URL="https://raw.githubusercontent.com/oszuidwest/windows10-baseline/main/assets/ZWTV-wallpaper.png"
+CHROME_URL="https://teksttv.zuidwesttv.nl/"
+
 # Set-up the functions library
 FUNCTIONS_LIB_PATH="/tmp/functions.sh"
 FUNCTIONS_LIB_URL="https://raw.githubusercontent.com/oszuidwest/bash-functions/main/common-functions.sh"
@@ -56,10 +60,6 @@ if [ "$DO_UPDATES" == "y" ]; then
   update_os silent
 fi
 
-# Variables
-WALLPAPER_URL="https://raw.githubusercontent.com/oszuidwest/windows10-baseline/main/assets/ZWTV-wallpaper.png"
-CHROME_URL="https://teksttv.zuidwesttv.nl/"
-
 # Install dependencies
 install_packages silent xserver-xorg x11-xserver-utils x11-utils xinit openbox unclutter chromium-browser feh ttf-mscorefonts-installer fonts-crosextra-carlito fonts-crosextra-caladea realvnc-vnc-server
 
@@ -111,9 +111,9 @@ EOF
 sudo raspi-config nonint do_boot_behaviour B2
 sudo raspi-config nonint do_vnc 0
 
-# Clean Up
+# Clean Up justs to be sure
 sudo apt autoremove -y
 
-# Reboot System
+# Reboot
 echo "Configuration complete. The system will now reboot."
 sudo reboot
