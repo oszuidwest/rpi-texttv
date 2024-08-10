@@ -8,9 +8,6 @@ FUNCTIONS_LIB_URL="https://raw.githubusercontent.com/oszuidwest/bash-functions/m
 CONFIG_FILE_PATHS=("/boot/firmware/config.txt" "/boot/config.txt")
 FIRST_IP=$(hostname -I | awk '{print $1}')
 
-# Start with a clean terminal
-clear
-
 # Remove old functions library and download the latest version
 rm -f "$FUNCTIONS_LIB_PATH"
 if ! curl -s -o "$FUNCTIONS_LIB_PATH" "$FUNCTIONS_LIB_URL"; then
@@ -38,6 +35,9 @@ check_rpi_model 4
 # Timezone configuration
 set_timezone Europe/Amsterdam
 
+# Start with a clean terminal
+clear
+
 # Banner
 cat << "EOF"
  ______   _ ___ ______        _______ ____ _____   _______     __
@@ -61,7 +61,7 @@ WALLPAPER_URL="https://raw.githubusercontent.com/oszuidwest/windows10-baseline/m
 CHROME_URL="https://teksttv.zuidwesttv.nl/"
 
 # Install dependencies
-install_packages xserver-xorg x11-xserver-utils xinit openbox unclutter chromium-browser feh ttf-mscorefonts-installer fonts-crosextra-carlito fonts-crosextra-caladea realvnc-vnc-server
+install_packages silent xserver-xorg x11-xserver-utils x11-utils xinit openbox unclutter chromium-browser feh ttf-mscorefonts-installer fonts-crosextra-carlito fonts-crosextra-caladea realvnc-vnc-server
 
 ########## REFACTOR ONDERSTAANDE ################
 #
@@ -86,7 +86,7 @@ unclutter -idle 0 &
 feh --fullscreen /var/fallback/fallback.png &
 
 # Wait for feh to start
-sleep 5
+sleep 3
 
 # Start Chromium in kiosk mode
 chromium-browser --kiosk --noerrdialogs --disable-infobars --disable-session-crashed-bubble \
