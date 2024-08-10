@@ -4,7 +4,7 @@ This repository contains a script to set up a Raspberry Pi as a kiosk, displayin
 
 ## Script Overview
 
-The `setup.sh` script performs the following tasks:
+The `install.sh` script performs the following tasks:
 
 1. Updates the package list.
 2. Installs necessary packages for the kiosk setup.

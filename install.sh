@@ -1,16 +1,14 @@
 #!/usr/bin/env bash
 
-# Variables (Change these)
+# Variables (Update these if needed)
 WALLPAPER_URL="https://raw.githubusercontent.com/oszuidwest/windows10-baseline/main/assets/ZWTV-wallpaper.png"
 CHROME_URL="https://teksttv.zuidwesttv.nl/"
-
-# Set-up the functions library
-FUNCTIONS_LIB_PATH="/tmp/functions.sh"
 FUNCTIONS_LIB_URL="https://raw.githubusercontent.com/oszuidwest/bash-functions/main/common-functions.sh"
 
-# General Raspberry Pi configuration (might be used later but we're not using this so keep the linter happy)
-#CONFIG_FILE_PATHS=("/boot/firmware/config.txt" "/boot/config.txt")
-#FIRST_IP=$(hostname -I | awk '{print $1}')
+# Constants
+FUNCTIONS_LIB_PATH="/tmp/functions.sh"
+CMDLINE_FILE="/boot/firmware/cmdline.txt"
+VIDEO_OPTION="video=HDMI-A-1:1920x1080@60D"
 
 # Remove old functions library and download the latest version
 rm -f "$FUNCTIONS_LIB_PATH"
@@ -26,20 +24,18 @@ source "$FUNCTIONS_LIB_PATH"
 # Set color variables
 set_colors
 
-# Check if running as root
+# Check if the script is running as root
 check_user_privileges normal
 
-# Check if this is Linux
+# Ensure the script is running on a supported platform (Linux, 64-bit, Raspberry Pi 4 or newer)
 is_this_linux
 is_this_os_64bit
-
-# Check if we are running on a Raspberry Pi 4 or newer
 check_rpi_model 4
 
-# Start with a clean terminal
+# Clear the terminal for a clean start
 clear
 
-# Banner
+# Display Banner
 cat << "EOF"
  ______   _ ___ ______        _______ ____ _____   _______     __
 |__  / | | |_ _|  _ \ \      / / ____/ ___|_   _| |_   _\ \   / /
@@ -48,36 +44,50 @@ cat << "EOF"
 /____|\___/|___|____/  \_/\_/  |_____|____/ |_|     |_|    \_/   
 EOF
 
-# Greeting
-echo -e "${GREEN}⎎ Raspberry Pi Tekst TV set-up${NC}\n\n"
+# Greet the user
+echo -e "${GREEN}⎎ Raspberry Pi Tekst TV Set-up${NC}\n\n"
 ask_user "DO_UPDATES" "y" "Do you want to perform all OS updates? (y/n)" "y/n"
 
-# Timezone configuration
+# Set the system timezone
 set_timezone Europe/Amsterdam
 
-# Update OS
+# Configure video resolution if not already set
+echo -e "${BLUE}►► Setting video resolution...${NC}"
+if ! grep -q "$VIDEO_OPTION" "$CMDLINE_FILE"; then
+  echo "No resolution force option found in $CMDLINE_FILE, appending..."
+  sudo sed -i "$ s/$/ $VIDEO_OPTION/" "$CMDLINE_FILE"
+  echo "Resolution set to $VIDEO_OPTION"
+else
+  echo "Resolution $VIDEO_OPTION already exists in $CMDLINE_FILE, no changes made."
+fi
+
+# Perform OS updates if requested by the user
 if [ "$DO_UPDATES" == "y" ]; then
   update_os silent
 fi
 
-# Install dependencies
+# Install necessary packages
 install_packages silent xserver-xorg x11-xserver-utils x11-utils xinit openbox unclutter chromium-browser feh ttf-mscorefonts-installer fonts-crosextra-carlito fonts-crosextra-caladea realvnc-vnc-server
 
-########## REFACTOR ONDERSTAANDE ################
-#
-#
-#
-# Setup Fallback Wallpaper
+# Set up the fallback wallpaper
 sudo mkdir -p /var/fallback
-sudo wget "$WALLPAPER_URL" -O /var/fallback/fallback.png
+sudo wget -q "$WALLPAPER_URL" -O /var/fallback/fallback.png
 
 # Configure Openbox
+echo -e "${BLUE}►► Configuring Openbox...${NC}"
 mkdir -p ~/.config/openbox
 cat << EOF > ~/.config/openbox/autostart
 #!/bin/bash
 xset -dpms          # Disable DPMS (Energy Star) features.
 xset s off          # Disable screen saver.
 xset s noblank      # Don't blank the video device.
+
+# Set the resolution and position monitor 2 to the right of monitor 1
+xrandr --newmode "1920x1080_60.00"  173.00  1920 2048 2248 2576  1080 1083 1088 1120 -hsync +vsync
+xrandr --addmode HDMI-1 1920x1080_60.00
+
+# Set HDMI-1 as the primary monitor
+xrandr --output HDMI-1 --primary --mode 1920x1080_60.00 --rate 60
 
 # Hide the mouse cursor when idle
 unclutter -idle 0 &
@@ -86,7 +96,7 @@ unclutter -idle 0 &
 feh --fullscreen /var/fallback/fallback.png &
 
 # Wait for feh to start
-sleep 3
+sleep 2
 
 # Start Chromium in kiosk mode
 chromium-browser --kiosk --noerrdialogs --disable-infobars --disable-session-crashed-bubble \
@@ -100,20 +110,21 @@ EOF
 
 chmod +x ~/.config/openbox/autostart
 
-# Enable X11 and VNC on Boot
+# Configure X11 and VNC to start on boot
+echo -e "${BLUE}►► Enabling X11 and VNC on boot...${NC}"
 cat << 'EOF' >> ~/.profile
 if [ -z "$DISPLAY" ] && [ "$(tty)" = "/dev/tty1" ]; then
-    startx
+  startx
 fi
 EOF
 
-# Configure Automatic Login and VNC
 sudo raspi-config nonint do_boot_behaviour B2
 sudo raspi-config nonint do_vnc 0
 
-# Clean Up justs to be sure
+# Clean up unnecessary packages
+echo -e "${BLUE}►► Cleaning up unnecessary packages...${NC}"
 sudo apt autoremove -y
 
-# Reboot
-echo "Configuration complete. The system will now reboot."
+# Reboot the system
+echo -e "${GREEN}Configuration complete. The system will now reboot.${NC}\n\n"
 sudo reboot
