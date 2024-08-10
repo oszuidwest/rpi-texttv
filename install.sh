@@ -36,9 +36,6 @@ is_this_os_64bit
 # Check if we are running on a Raspberry Pi 4 or newer
 check_rpi_model 4
 
-# Timezone configuration
-set_timezone Europe/Amsterdam
-
 # Start with a clean terminal
 clear
 
@@ -54,6 +51,9 @@ EOF
 # Greeting
 echo -e "${GREEN}⎎ Raspberry Pi Tekst TV set-up${NC}\n\n"
 ask_user "DO_UPDATES" "y" "Do you want to perform all OS updates? (y/n)" "y/n"
+
+# Timezone configuration
+set_timezone Europe/Amsterdam
 
 # Update OS
 if [ "$DO_UPDATES" == "y" ]; then
