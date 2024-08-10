@@ -35,7 +35,7 @@ CHROME_URL="your_custom_chrome_url"
 ### Foreced resolution
 To ensure the Raspberry Pi displays the content correctly on different screens, the script includes settings to force a specific screen resolution. This is particularly useful when connecting to displays that may not automatically configure to the desired resolution.
 
-By default, the script configures the Raspberry Pi to use a standard HD resolution (1920x1080) at 60Hz. If you need a diffrent resolution, you can change the `VIDEO_OPTION` variable and the `xrandr` commands.
+By default, the script configures the Raspberry Pi to use a standard HD resolution (1920x1080) at 60Hz. If you need a diffrent resolution, you can change the `VIDEO_OPTION` variable and the `xrandr` commands. By default only the main screen (HDMI-A) is used.
 
 ## License
 
