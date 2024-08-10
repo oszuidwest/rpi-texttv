@@ -1,38 +1,41 @@
-# Raspberry Pi Kiosk Setup
+# Raspberry Pi Text TV Setup
 
-This repository contains a script to set up a Raspberry Pi as a kiosk, displaying a web page in full-screen mode using Chromium. The setup includes installing necessary packages, configuring Openbox, setting a fallback wallpaper, and enabling VNC.
+This repository provides a script to configure a Raspberry Pi as a narrowcasting screen, displaying a webpage in full-screen mode using Chromium. The setup process includes installing essential packages, configuring the window manager, setting a fallback wallpaper, and enabling VNC for remote access.
 
-## Script Overview
-
-The `install.sh` script performs the following tasks:
-
-1. Updates the package list.
-2. Installs necessary packages for the kiosk setup.
-3. Sets up a fallback wallpaper.
-4. Configures Openbox to disable power management, hide the mouse cursor, and start Chromium in kiosk mode displaying the specified web page.
-5. Enables X11 and VNC on boot.
-6. Configures automatic login and VNC.
-7. Cleans up unnecessary packages.
-8. Reboots the system to apply changes.
+## Compatibilty 
+This setup is designed for Raspberry Pi 4 or newer models and is compatible only with Raspberry Pi OS Bookworm (64-bit) Lite. There's no need to install a full desktop environment, as this script installs and configures a lightweight alternative.
 
 ## Usage
-
-First, install Raspberry Pi OS Bookworm (64-bit) and log in as a non-privileged user. Do not switch to or use `su`/`sudo` for root access. Run the following command:
+To get started, install Raspberry Pi OS Bookworm (64-bit) and log in as a non-privileged user. It's important to avoid using `su` or `sudo` for root access during this process. Run the following command to execute the setup script:
 
    ```bash
    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/oszuidwest/rpi-teksttv/main/install.sh)".
    ```
 
-   This will execute the script, install necessary packages, and configure the Raspberry Pi for kiosk mode.
+This command will download and run the script, automatically installing the necessary packages and configuring your Raspberry Pi for kiosk mode.
 
 ## Customization
 
-You can customize the script to use a different wallpaper or web page by modifying the `WALLPAPER_URL` and `CHROME_URL` variables at the beginning of the `install.sh` script.
+You can easily customize the script to use a different wallpaper or webpage by editing the `WALLPAPER_URL` and `CHROME_URL` variables at the beginning of the install.sh script:
 
 ```bash
 WALLPAPER_URL="your_custom_wallpaper_url"
 CHROME_URL="your_custom_chrome_url"
 ```
+
+## Architectural Overview
+
+- Chromium: Used to display the Tekst TV web application in full-screen kiosk mode, hiding all browser controls for an optimal public display experience.
+- Openbox: A lightweight window manager that automatically starts and manages Chromium and other display settings, ensuring a minimal and efficient graphical environment.
+- Unclutter: A utility to hide the mouse cursor when idle, maintaining a clean screen presentation.
+- X11: The display server that provides the graphical environment necessary for running applications like Chromium on the Raspberry Pi. The script ensures X11 starts automatically on boot.
+- Feh: Used to display a fallback wallpaper in the absence of other graphical content, ensuring the display is always visually appealing.
+- RealVNC: Provides remote desktop access to the Raspberry Pi, allowing for easy management and troubleshooting.
+
+### Foreced resolution
+To ensure the Raspberry Pi displays the content correctly on different screens, the script includes settings to force a specific screen resolution. This is particularly useful when connecting to displays that may not automatically configure to the desired resolution.
+
+By default, the script configures the Raspberry Pi to use a standard HD resolution (1920x1080) at 60Hz. If you need a diffrent resolution, you can change the `VIDEO_OPTION` variable and the `xrandr` commands.
 
 ## License
 
@@ -40,4 +43,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Contributing
 
-Feel free to submit issues and pull requests for improvements and additional features.
+Contributions are welcome! Feel free to submit issues and pull requests for improvements and additional features.
