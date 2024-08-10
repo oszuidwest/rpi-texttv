@@ -56,38 +56,17 @@ if [ "$DO_UPDATES" == "y" ]; then
   update_os silent
 fi
 
-########## REFACTOR ONDERSTAANDE ################
-
 # Variables
 WALLPAPER_URL="https://raw.githubusercontent.com/oszuidwest/windows10-baseline/main/assets/ZWTV-wallpaper.png"
 CHROME_URL="https://teksttv.zuidwesttv.nl/"
 
-# Update package list
-sudo apt update
+# Install dependencies
+install_packages xserver-xorg x11-xserver-utils xinit openbox unclutter chromium-browser feh ttf-mscorefonts-installer fonts-crosextra-carlito fonts-crosextra-caladea realvnc-vnc-server
 
-# Install Necessary Packages
-PACKAGES=(
-    xserver-xorg
-    x11-xserver-utils
-    xinit
-    openbox
-    unclutter
-    chromium-browser
-    feh
-    ttf-mscorefonts-installer
-    fonts-crosextra-carlito
-    fonts-crosextra-caladea
-    realvnc-vnc-server
-)
-
-for PACKAGE in "${PACKAGES[@]}"; do
-    echo "Installing $PACKAGE..."
-    if ! sudo apt install --no-install-recommends -y "$PACKAGE"; then
-        echo "Error installing $PACKAGE"
-        exit 1
-    fi
-done
-
+########## REFACTOR ONDERSTAANDE ################
+#
+#
+#
 # Setup Fallback Wallpaper
 sudo mkdir -p /var/fallback
 sudo wget "$WALLPAPER_URL" -O /var/fallback/fallback.png
