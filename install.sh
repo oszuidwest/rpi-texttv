@@ -48,7 +48,7 @@ cat << "EOF"
 EOF
 
 # Greeting
-echo -e "${GREEN}⎎ Raspberry Pi Kiosk set-up${NC}\n\n"
+echo -e "${GREEN}⎎ Raspberry Pi Tekst TV set-up${NC}\n\n"
 ask_user "DO_UPDATES" "y" "Do you want to perform all OS updates? (y/n)" "y/n"
 
 # Update OS
