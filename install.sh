@@ -8,7 +8,7 @@ FUNCTIONS_LIB_URL="https://raw.githubusercontent.com/oszuidwest/bash-functions/m
 # Constants
 FUNCTIONS_LIB_PATH="/tmp/functions.sh"
 CMDLINE_FILE="/boot/firmware/cmdline.txt"
-VIDEO_OPTION="video=HDMI-A-1:1920x1080@60D"
+VIDEO_OPTION="video=HDMI-A-1:1920x1080@50D video=HDMI-A-1:D"
 
 # Remove old functions library and download the latest version
 rm -f "$FUNCTIONS_LIB_PATH"
@@ -82,12 +82,12 @@ xset -dpms          # Disable DPMS (Energy Star) features.
 xset s off          # Disable screen saver.
 xset s noblank      # Don't blank the video device.
 
-# Set the resolution and position monitor 2 to the right of monitor 1
-xrandr --newmode "1920x1080_60.00"  173.00  1920 2048 2248 2576  1080 1083 1088 1120 -hsync +vsync
-xrandr --addmode HDMI-1 1920x1080_60.00
+# Set the resolution
+xrandr --newmode "1920x1080_50i"  74.25  1920 2448 2492 2640  1080 1084 1094 1125 interlace -hsync +vsync
+xrandr --addmode HDMI-1 "1920x1080_50i"
 
 # Set HDMI-1 as the primary monitor
-xrandr --output HDMI-1 --primary --mode 1920x1080_60.00 --rate 60
+xrandr --output HDMI-1 --mode "1920x1080_50i"
 
 # Hide the mouse cursor when idle
 unclutter -idle 0 &
