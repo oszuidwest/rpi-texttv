@@ -3,7 +3,7 @@
 This repository provides a script to configure a Raspberry Pi as a narrowcasting screen, displaying a webpage in full-screen mode using Chromium. The setup process includes installing essential packages, configuring the window manager, setting a fallback wallpaper, and enabling VNC for remote access.
 
 ## Compatibilty 
-This setup is designed for Raspberry Pi 4 or newer models and is compatible only with Raspberry Pi OS Bookworm (64-bit) Lite. There's no need to install a full desktop environment, as this script installs and configures a lightweight alternative.
+This setup is designed for Raspberry Pi 3 or newer models and is compatible only with Raspberry Pi OS Bookworm (64-bit) Lite. There's no need to install a full desktop environment, as this script installs and configures a lightweight alternative.
 
 ## Usage
 To get started, install Raspberry Pi OS Bookworm (64-bit) and log in as a non-privileged user. It's important to avoid using `su` or `sudo` for root access during this process. Run the following command to execute the setup script:
@@ -35,7 +35,7 @@ CHROME_URL="your_custom_chrome_url"
 ### Foreced resolution
 To ensure the Raspberry Pi displays the content correctly on different screens, the script includes settings to force a specific screen resolution. This is particularly useful when connecting to displays that may not automatically configure to the desired resolution.
 
-By default, the script configures the Raspberry Pi to use a standard HD resolution (1920x1080) at 50Hz. If you need a diffrent resolution, you can change the `VIDEO_OPTION` variable and the `xrandr` commands. By default only the main screen (HDMI-A) is used.
+By default, the script configures the Raspberry Pi to use a broadcast HD resolution (1080i) at 50Hz. If you need a diffrent resolution, you can change the `VIDEO_OPTION` variable and the `xrandr` commands. By default only the main screen (HDMI-A) is used.
 
 ## License
 

@@ -27,10 +27,10 @@ set_colors
 # Check if the script is running as root
 check_user_privileges normal
 
-# Ensure the script is running on a supported platform (Linux, 64-bit, Raspberry Pi 4 or newer)
+# Ensure the script is running on a supported platform (Linux, 64-bit, Raspberry Pi 3 or newer)
 is_this_linux
 is_this_os_64bit
-check_rpi_model 4
+check_rpi_model 3
 
 # Clear the terminal for a clean start
 clear
@@ -86,14 +86,14 @@ xset s noblank      # Don't blank the video device.
 xrandr --newmode "1920x1080_50i"  74.25  1920 2448 2492 2640  1080 1084 1094 1125 interlace -hsync +vsync
 xrandr --addmode HDMI-1 "1920x1080_50i"
 
-# Set HDMI-1 as the primary monitor
+# Set the resolution
 xrandr --output HDMI-1 --mode "1920x1080_50i"
 
 # Hide the mouse cursor when idle
 unclutter -idle 0 &
 
 # Display the fallback image as a background using feh
-feh --fullscreen /var/fallback/fallback.png &
+feh --bg-fill /var/fallback/fallback.png &
 
 # Wait for feh to start
 sleep 2
