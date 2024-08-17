@@ -67,7 +67,7 @@ if [ "$DO_UPDATES" == "y" ]; then
 fi
 
 # Install necessary packages
-install_packages silent xserver-xorg x11-xserver-utils x11-utils xinit openbox unclutter chromium-browser feh ttf-mscorefonts-installer fonts-crosextra-carlito fonts-crosextra-caladea realvnc-vnc-server
+install_packages silent xserver-xorg x11-xserver-utils x11-utils xinit openbox unclutter-xfixes chromium-browser feh ttf-mscorefonts-installer fonts-crosextra-carlito fonts-crosextra-caladea realvnc-vnc-server
 
 # Set up the fallback wallpaper
 sudo mkdir -p /var/fallback
@@ -90,13 +90,10 @@ xrandr --addmode HDMI-1 "1920x1080_50i"
 xrandr --output HDMI-1 --mode "1920x1080_50i"
 
 # Hide the mouse cursor when idle
-unclutter -idle 0 &
+unclutter --timeout 0 --hide-on-touch --start-hidden --fork
 
 # Display the fallback image as a background using feh
 feh --bg-fill /var/fallback/fallback.png &
-
-# Wait for feh to start
-sleep 2
 
 # Start Chromium in kiosk mode
 chromium-browser --kiosk --noerrdialogs --disable-infobars --disable-session-crashed-bubble \
