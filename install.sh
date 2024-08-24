@@ -120,6 +120,7 @@ sudo raspi-config nonint do_vnc 0
 
 # Clean up unnecessary packages
 echo -e "${BLUE}►► Cleaning up unnecessary packages...${NC}"
+sudo apt remove cups -y
 sudo apt autoremove -y
 
 # Reboot the system
