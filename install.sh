@@ -8,7 +8,7 @@ FUNCTIONS_LIB_URL="https://raw.githubusercontent.com/oszuidwest/bash-functions/m
 # Constants
 FUNCTIONS_LIB_PATH="/tmp/functions.sh"
 CMDLINE_FILE="/boot/firmware/cmdline.txt"
-VIDEO_OPTION="video=HDMI-A-1:1920x1080@50D video=HDMI-A-1:D"
+VIDEO_OPTION="video=HDMI-A-1:1920x1080@50D video=HDMI-A-1:D consoleblank=1"
 
 # Remove old functions library and download the latest version
 rm -f "$FUNCTIONS_LIB_PATH"
