@@ -8,7 +8,10 @@ FUNCTIONS_LIB_URL="https://raw.githubusercontent.com/oszuidwest/bash-functions/m
 # Constants
 FUNCTIONS_LIB_PATH="/tmp/functions.sh"
 CMDLINE_FILE="/boot/firmware/cmdline.txt"
-VIDEO_OPTION="video=HDMI-A-1:1920x1080@50D video=HDMI-A-1:D consoleblank=1 logo.nologo"
+
+# System configuration options
+VIDEO_OPTIONS="video=HDMI-A-1:1920x1080@50D video=HDMI-A-1:D"
+BOOT_OPTIONS="consoleblank=1 logo.nologo"
 
 # Remove old functions library and download the latest version
 rm -f "$FUNCTIONS_LIB_PATH"
@@ -39,7 +42,7 @@ if [ -f /proc/device-tree/model ]; then
   [[ "$MODEL" == *"Raspberry Pi 3"* ]] && IS_PI_3=true
 fi
 
-# Clear the terminal for a clean start
+# Clear the terminal
 clear
 
 # Display Banner
@@ -55,7 +58,7 @@ EOF
 echo -e "${GREEN}⎎ Raspberry Pi Tekst TV Set-up${NC}\n\n"
 ask_user "DO_UPDATES" "y" "Do you want to perform all OS updates? (y/n)" "y/n"
 
-# Set the system timezone
+# Set system timezone
 set_timezone Europe/Amsterdam
 
 # Configure video resolution if not already set
@@ -110,6 +113,7 @@ chromium-browser --kiosk --noerrdialogs --disable-infobars --disable-session-cra
     $( [ "$IS_PI_3" == true ] && echo "--disable-gpu" )
 EOF
 
+# Make the autostart script executable
 chmod +x ~/.config/openbox/autostart
 
 # Configure X11 and VNC to start on boot
@@ -125,8 +129,8 @@ sudo raspi-config nonint do_vnc 0
 
 # Clean up unnecessary packages
 echo -e "${BLUE}►► Cleaning up unnecessary packages...${NC}"
-sudo apt remove cups -y
-sudo apt autoremove -y
+sudo apt -qq remove cups -y
+sudo apt -qq autoremove -y
 
 # Reboot the system
 echo -e "${GREEN}Configuration complete. The system will now reboot.${NC}\n\n"
