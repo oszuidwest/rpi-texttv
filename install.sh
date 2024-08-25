@@ -32,6 +32,13 @@ is_this_linux
 is_this_os_64bit
 check_rpi_model 3
 
+# Detect if the system is a Raspberry Pi 3
+IS_PI_3=false
+if [ -f /proc/device-tree/model ]; then
+  MODEL=$(< /proc/device-tree/model)
+  [[ "$MODEL" == *"Raspberry Pi 3"* ]] && IS_PI_3=true
+fi
+
 # Clear the terminal for a clean start
 clear
 
@@ -54,7 +61,6 @@ set_timezone Europe/Amsterdam
 # Configure video resolution if not already set
 echo -e "${BLUE}►► Setting video resolution...${NC}"
 if ! grep -q "$VIDEO_OPTION" "$CMDLINE_FILE"; then
-  echo "No resolution force option found in $CMDLINE_FILE, appending..."
   sudo sed -i "$ s/$/ $VIDEO_OPTION/" "$CMDLINE_FILE"
   echo "Resolution set to $VIDEO_OPTION"
 else
@@ -85,8 +91,6 @@ xset s noblank      # Don't blank the video device.
 # Set the resolution
 xrandr --newmode "1920x1080_50i"  74.25  1920 2448 2492 2640  1080 1084 1094 1125 interlace -hsync +vsync
 xrandr --addmode HDMI-1 "1920x1080_50i"
-
-# Set the resolution
 xrandr --output HDMI-1 --mode "1920x1080_50i"
 
 # Hide the mouse cursor when idle
@@ -102,7 +106,8 @@ chromium-browser --kiosk --noerrdialogs --disable-infobars --disable-session-cra
     --disable-client-side-phishing-detection --disable-default-apps --disable-hang-monitor \
     --disable-popup-blocking --disable-prompt-on-repost --disable-sync --metrics-recording-only \
     --no-first-run --no-default-browser-check --disable-component-update \
-    --disable-backgrounding-occluded-windows --disable-renderer-backgrounding
+    --disable-backgrounding-occluded-windows --disable-renderer-backgrounding \
+    $( [ "$IS_PI_3" == true ] && echo "--disable-gpu" )
 EOF
 
 chmod +x ~/.config/openbox/autostart
