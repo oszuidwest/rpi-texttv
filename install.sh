@@ -61,14 +61,17 @@ ask_user "DO_UPDATES" "y" "Do you want to perform all OS updates? (y/n)" "y/n"
 # Set system timezone
 set_timezone Europe/Amsterdam
 
-# Configure video resolution if not already set
-echo -e "${BLUE}►► Setting video resolution...${NC}"
-if ! grep -q "$VIDEO_OPTION" "$CMDLINE_FILE"; then
-  sudo sed -i "$ s/$/ $VIDEO_OPTION/" "$CMDLINE_FILE"
-  echo "Resolution set to $VIDEO_OPTION"
-else
-  echo "Resolution $VIDEO_OPTION already exists in $CMDLINE_FILE, no changes made."
-fi
+# Apply cmdline.txt modifications
+echo -e "${BLUE}►► Applying video and boot options...${NC}"
+CMDLINE_OPTIONS="$VIDEO_OPTIONS $BOOT_OPTIONS"
+for OPTION in $CMDLINE_OPTIONS; do
+  if ! grep -q "$OPTION" "$CMDLINE_FILE"; then
+    sudo sed -i "$ s/$/ $OPTION/" "$CMDLINE_FILE"
+    echo "Applied option: $OPTION"
+  else
+    echo "Option $OPTION already present in $CMDLINE_FILE, no changes made."
+  fi
+done
 
 # Perform OS updates if requested by the user
 if [ "$DO_UPDATES" == "y" ]; then
