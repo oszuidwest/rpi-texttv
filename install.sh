@@ -1,18 +1,21 @@
 #!/usr/bin/env bash
 
-# Variables (Update these if needed)
-FALLBACKIMG_URL="https://raw.githubusercontent.com/oszuidwest/windows10-baseline/main/assets/ZWTV-wallpaper.png"
+# Media URLs
 CHROME_URL="https://teksttv.zuidwesttv.nl/"
 VLC_URL="https://icecast.zuidwestfm.nl/zuidwest.stl"
+
+# Files to download
+FALLBACKIMG_URL="https://raw.githubusercontent.com/oszuidwest/windows10-baseline/main/assets/ZWTV-wallpaper.png"
 FUNCTIONS_LIB_URL="https://raw.githubusercontent.com/oszuidwest/bash-functions/main/common-functions.sh"
+EDID_DATA_URL="https://raw.githubusercontent.com/oszuidwest/rpi-texttv/main/edid.bin"
 
 # Constants
 FUNCTIONS_LIB_PATH="/tmp/functions.sh"
 CMDLINE_FILE="/boot/firmware/cmdline.txt"
 
 # System configuration options
-VIDEO_OPTIONS="video=HDMI-A-1:1920x1080@50D video=HDMI-A-1:D"
-BOOT_OPTIONS="consoleblank=1 logo.nologo"
+VIDEO_OPTIONS="video=HDMI-A-1:1920x1080@50D"
+BOOT_OPTIONS="drm.edid_firmware=edid/edid.bin vc4.force_hotplug=0x01 consoleblank=1 logo.nologo"
 
 # Remove old functions library and download the latest version
 rm -f "$FUNCTIONS_LIB_PATH"
@@ -67,7 +70,7 @@ echo -e "${BLUE}►► Applying video and boot options...${NC}"
 CMDLINE_OPTIONS="$VIDEO_OPTIONS $BOOT_OPTIONS"
 for OPTION in $CMDLINE_OPTIONS; do
   if ! grep -q "$OPTION" "$CMDLINE_FILE"; then
-    sudo sed -i "$ s/$/ $OPTION/" "$CMDLINE_FILE"
+    sudo sed -i "\$ s|$| $OPTION|" "$CMDLINE_FILE"
     echo "Applied option: $OPTION"
   else
     echo "Option $OPTION already present in $CMDLINE_FILE, no changes made."
@@ -87,6 +90,10 @@ install_packages silent xserver-xorg x11-xserver-utils x11-utils xinit openbox u
 # Set up the fallback wallpaper
 sudo mkdir -p /var/fallback
 sudo wget -q "$FALLBACKIMG_URL" -O /var/fallback/fallback.png
+
+# Download EDID data
+sudo mkdir -p /lib/firmware/edid/
+sudo wget -q "$EDID_DATA_URL" -O /lib/firmware/edid/edid.bin
 
 # Configure Openbox
 echo -e "${BLUE}►► Configuring Openbox...${NC}"
