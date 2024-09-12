@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 
 # Variables (Update these if needed)
-WALLPAPER_URL="https://raw.githubusercontent.com/oszuidwest/windows10-baseline/main/assets/ZWTV-wallpaper.png"
+FALLBACKIMG_URL="https://raw.githubusercontent.com/oszuidwest/windows10-baseline/main/assets/ZWTV-wallpaper.png"
 CHROME_URL="https://teksttv.zuidwesttv.nl/"
+VLC_URL="https://icecast.zuidwestfm.nl/zuidwest.stl"
 FUNCTIONS_LIB_URL="https://raw.githubusercontent.com/oszuidwest/bash-functions/main/common-functions.sh"
 
 # Constants
@@ -79,11 +80,13 @@ if [ "$DO_UPDATES" == "y" ]; then
 fi
 
 # Install necessary packages
-install_packages silent xserver-xorg x11-xserver-utils x11-utils xinit openbox unclutter-xfixes chromium-browser feh vlc ttf-mscorefonts-installer fonts-crosextra-carlito fonts-crosextra-caladea realvnc-vnc-server
+install_packages silent xserver-xorg x11-xserver-utils x11-utils xinit openbox unclutter-xfixes  \
+  chromium-browser feh vlc ttf-mscorefonts-installer fonts-crosextra-carlito \
+  fonts-crosextra-caladea realvnc-vnc-server
 
 # Set up the fallback wallpaper
 sudo mkdir -p /var/fallback
-sudo wget -q "$WALLPAPER_URL" -O /var/fallback/fallback.png
+sudo wget -q "$FALLBACKIMG_URL" -O /var/fallback/fallback.png
 
 # Configure Openbox
 echo -e "${BLUE}►► Configuring Openbox...${NC}"
@@ -112,17 +115,17 @@ feh --bg-fill /var/fallback/fallback.png &
 
 # Start Chromium in kiosk mode
 chromium-browser --kiosk --noerrdialogs --disable-infobars --disable-session-crashed-bubble \
-    --disable-features=TranslateUI --app=$CHROME_URL --incognito \
-    --disable-extensions --disable-background-networking --disable-background-timer-throttling \
-    --disable-client-side-phishing-detection --disable-default-apps --disable-hang-monitor \
-    --disable-popup-blocking --disable-prompt-on-repost --disable-sync --metrics-recording-only \
-    --no-first-run --no-default-browser-check --disable-component-update \
-    --disable-backgrounding-occluded-windows --disable-renderer-backgrounding \
-    $( [ "$IS_PI_3" == true ] && echo "--disable-gpu" ) &
+  --disable-features=TranslateUI --app=$CHROME_URL --incognito \
+  --disable-extensions --disable-background-networking --disable-background-timer-throttling \
+  --disable-client-side-phishing-detection --disable-default-apps --disable-hang-monitor \
+  --disable-popup-blocking --disable-prompt-on-repost --disable-sync --metrics-recording-only \
+  --no-first-run --no-default-browser-check --disable-component-update \
+  --disable-backgrounding-occluded-windows --disable-renderer-backgrounding \
+  $( [ "$IS_PI_3" == true ] && echo "--disable-gpu" ) &
 
 # Start VLC with specified settings
 cvlc --aout alsa --alsa-audio-device=hdmi:CARD=vc4hdmi,DEV=0 --gain 0.3 --intf dummy --loop \
-    'https://icecast.zuidwestfm.nl/zuidwest.stl' :http-user-agent='Raspberry Pi ($HOSTNAME)'
+  '$VLC_URL' :http-user-agent='Raspberry Pi ($HOSTNAME)'
 EOF
 
 # Make the autostart script executable
