@@ -79,7 +79,7 @@ if [ "$DO_UPDATES" == "y" ]; then
 fi
 
 # Install necessary packages
-install_packages silent xserver-xorg x11-xserver-utils x11-utils xinit openbox unclutter-xfixes chromium-browser feh ttf-mscorefonts-installer fonts-crosextra-carlito fonts-crosextra-caladea realvnc-vnc-server
+install_packages silent xserver-xorg x11-xserver-utils x11-utils xinit openbox unclutter-xfixes chromium-browser feh vlc ttf-mscorefonts-installer fonts-crosextra-carlito fonts-crosextra-caladea realvnc-vnc-server
 
 # Set up the fallback wallpaper
 sudo mkdir -p /var/fallback
@@ -90,6 +90,11 @@ echo -e "${BLUE}►► Configuring Openbox...${NC}"
 mkdir -p ~/.config/openbox
 cat << EOF > ~/.config/openbox/autostart
 #!/bin/bash
+
+# Get the hostname
+HOSTNAME=$(cat /etc/hostname)
+
+# Set energy management
 xset -dpms          # Disable DPMS (Energy Star) features.
 xset s off          # Disable screen saver.
 xset s noblank      # Don't blank the video device.
@@ -113,7 +118,11 @@ chromium-browser --kiosk --noerrdialogs --disable-infobars --disable-session-cra
     --disable-popup-blocking --disable-prompt-on-repost --disable-sync --metrics-recording-only \
     --no-first-run --no-default-browser-check --disable-component-update \
     --disable-backgrounding-occluded-windows --disable-renderer-backgrounding \
-    $( [ "$IS_PI_3" == true ] && echo "--disable-gpu" )
+    $( [ "$IS_PI_3" == true ] && echo "--disable-gpu" ) &
+
+# Start VLC with specified settings
+cvlc --aout alsa --alsa-audio-device=hdmi:CARD=vc4hdmi,DEV=0 --gain 0.3 --intf dummy --loop \
+    'https://icecast.zuidwestfm.nl/zuidwest.stl' :http-user-agent='Raspberry Pi ($HOSTNAME)'
 EOF
 
 # Make the autostart script executable
