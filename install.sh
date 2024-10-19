@@ -122,7 +122,7 @@ feh --bg-fill /var/fallback/fallback.png &
 
 # Start Chromium in kiosk mode
 chromium-browser --kiosk --noerrdialogs --disable-infobars --disable-session-crashed-bubble \
-  --disable-features=TranslateUI --app=$CHROME_URL --incognito \
+  --disable-features=Translate --app=$CHROME_URL --incognito \
   --disable-extensions --disable-background-networking --disable-background-timer-throttling \
   --disable-client-side-phishing-detection --disable-default-apps --disable-hang-monitor \
   --disable-popup-blocking --disable-prompt-on-repost --disable-sync --metrics-recording-only \
