@@ -127,8 +127,7 @@ chromium-browser --kiosk --noerrdialogs --disable-infobars --disable-session-cra
   --disable-client-side-phishing-detection --disable-default-apps --disable-hang-monitor \
   --disable-popup-blocking --disable-prompt-on-repost --disable-sync --metrics-recording-only \
   --no-first-run --no-default-browser-check --disable-component-update \
-  --disable-backgrounding-occluded-windows --disable-renderer-backgrounding \
-  $( [ "$IS_PI_3" == true ] && echo "--disable-gpu" ) &
+  --disable-backgrounding-occluded-windows --disable-renderer-backgrounding &
 
 # Start VLC with specified settings
 cvlc --aout alsa --alsa-audio-device=hdmi:CARD=vc4hdmi,DEV=0 --gain 0.3 --intf dummy --loop \
