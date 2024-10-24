@@ -39,13 +39,6 @@ is_this_linux
 is_this_os_64bit
 check_rpi_model 3
 
-# Detect if the system is a Raspberry Pi 3
-IS_PI_3=false
-if [ -f /proc/device-tree/model ]; then
-  MODEL=$(< /proc/device-tree/model)
-  [[ "$MODEL" == *"Raspberry Pi 3"* ]] && IS_PI_3=true
-fi
-
 # Clear the terminal
 clear
 
