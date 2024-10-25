@@ -54,6 +54,7 @@ EOF
 # Greet the user
 echo -e "${GREEN}⎎ Raspberry Pi Tekst TV Set-up${NC}\n\n"
 ask_user "DO_UPDATES" "y" "Do you want to perform all OS updates? (y/n)" "y/n"
+ask_user "INSTALL_VNC" "y" "Do you want to install VNC for remote control of this device? (y/n)" "y/n"
 
 # Set system timezone
 set_timezone Europe/Amsterdam
@@ -138,8 +139,13 @@ if [ -z "$DISPLAY" ] && [ "$(tty)" = "/dev/tty1" ]; then
 fi
 EOF
 
+# Boot to terminal, no login
 sudo raspi-config nonint do_boot_behaviour B2
-sudo raspi-config nonint do_vnc 0
+
+# Check if the $INSTALL_VNC variable is set to 'y'
+if [ "$INSTALL_VNC" == "y" ]; then
+  sudo raspi-config nonint do_vnc 0
+fi
 
 # Clean up unnecessary packages
 echo -e "${BLUE}►► Cleaning up unnecessary packages...${NC}"
