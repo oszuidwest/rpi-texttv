@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-# Media URLs
-CHROME_URL="https://teksttv.zuidwesttv.nl/"
-
 # Files to download
 FALLBACKIMG_URL="https://raw.githubusercontent.com/oszuidwest/windows10-baseline/main/assets/ZWTV-wallpaper.png"
 FUNCTIONS_LIB_URL="https://raw.githubusercontent.com/oszuidwest/bash-functions/main/common-functions.sh"
@@ -58,6 +55,7 @@ ask_user "INSTALL_VLC" "y" "Do you want to install VLC player to play a stream b
 if [ "$INSTALL_VLC" == "y" ]; then
   ask_user "VLC_URL" "https://icecast.zuidwest.cloud/zuidwest.stl" "Enter the URL of the stream that VLC should play" "str"
 fi
+ask_user "CHROME_URL" "https://icecast.zuidwest.cloud/zuidwest.stl" "What URL should be opened and displayed by Chrome?" "str"
 
 # Set system timezone
 set_timezone Europe/Amsterdam
