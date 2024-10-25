@@ -2,7 +2,6 @@
 
 # Media URLs
 CHROME_URL="https://teksttv.zuidwesttv.nl/"
-VLC_URL="https://icecast.zuidwestfm.nl/zuidwest.stl"
 
 # Files to download
 FALLBACKIMG_URL="https://raw.githubusercontent.com/oszuidwest/windows10-baseline/main/assets/ZWTV-wallpaper.png"
@@ -55,6 +54,10 @@ EOF
 echo -e "${GREEN}⎎ Raspberry Pi Tekst TV Set-up${NC}\n\n"
 ask_user "DO_UPDATES" "y" "Do you want to perform all OS updates? (y/n)" "y/n"
 ask_user "INSTALL_VNC" "y" "Do you want to install VNC for remote control of this device? (y/n)" "y/n"
+ask_user "INSTALL_VLC" "y" "Do you want to install VLC player to play a stream behind the narrowcast? (y/n)" "y/n"
+if [ "$INSTALL_VLC" == "y" ]; then
+  ask_user "VLC_URL" "https://icecast.zuidwest.cloud/zuidwest.stl" "Enter the URL of the stream that VLC should play" "str"
+fi
 
 # Set system timezone
 set_timezone Europe/Amsterdam
@@ -77,9 +80,11 @@ if [ "$DO_UPDATES" == "y" ]; then
 fi
 
 # Install necessary packages
-install_packages silent xserver-xorg x11-xserver-utils x11-utils xinit openbox unclutter-xfixes  \
-  chromium-browser feh vlc ttf-mscorefonts-installer fonts-crosextra-carlito \
-  fonts-crosextra-caladea realvnc-vnc-server
+install_packages silent xserver-xorg x11-xserver-utils x11-utils xinit openbox unclutter-xfixes \
+  chromium-browser feh ttf-mscorefonts-installer fonts-crosextra-carlito \
+  fonts-crosextra-caladea \
+  "$( [ "$INSTALL_VLC" == "y" ] && echo "vlc" )" \
+  "$( [ "$INSTALL_VNC" == "y" ] && echo "realvnc-vnc-server" )"
 
 # Set up the fallback wallpaper
 sudo mkdir -p /var/fallback
