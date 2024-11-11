@@ -55,7 +55,7 @@ ask_user "INSTALL_VLC" "y" "Do you want to install VLC player to play a stream b
 if [ "$INSTALL_VLC" == "y" ]; then
   ask_user "VLC_URL" "https://icecast.zuidwest.cloud/zuidwest.stl" "Enter the URL of the stream that VLC should play" "str"
 fi
-ask_user "CHROME_URL" "https://icecast.zuidwest.cloud/zuidwest.stl" "What URL should be opened and displayed by Chrome?" "str"
+ask_user "CHROME_URL" "https://teksttv.zuidwesttv.nl/" "What URL should be opened and displayed by Chrome?" "str"
 
 # Set system timezone
 set_timezone Europe/Amsterdam
