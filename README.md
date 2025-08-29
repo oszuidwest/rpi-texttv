@@ -3,7 +3,15 @@
 This repository provides a script to configure a Raspberry Pi as a narrowcasting screen, displaying a webpage in full-screen mode using Chromium. Additionally it can optionally use VLC to play a background audio track. The setup process includes installing essential packages, configuring the window manager, setting a fallback wallpaper, and enabling VNC for remote access.
 
 ## Compatibility
-This setup is designed for Raspberry Pi 3 or newer models and is tested only with Raspberry Pi OS Bookworm (64-bit) Lite. There's no need to install a full desktop environment, as this script installs and configures a lightweight alternative.
+
+### Supported Models
+- **Raspberry Pi 3B/3B+** - Single HDMI output
+- **Raspberry Pi 4** - Dual HDMI output support
+- **Raspberry Pi 5** - Dual HDMI output support
+- **Raspberry Pi 400** - Dual HDMI output support (keyboard computer)
+- **Raspberry Pi 500** - Dual HDMI output support (keyboard computer)
+
+This setup is tested with Raspberry Pi OS Bookworm (64-bit) Lite. There's no need to install a full desktop environment, as this script installs and configures a lightweight alternative.
 
 ### Dual Screen Support
 Raspberry Pi 4, Pi 5, Pi 400, and Pi 500 models support dual HDMI outputs. The script automatically detects these models and offers to configure both displays for simultaneous content display.
