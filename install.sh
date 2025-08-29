@@ -82,7 +82,9 @@ set_timezone Europe/Amsterdam
 echo -e "${BLUE}►► Applying video and boot options...${NC}"
 
 # Backup cmdline.txt before modifications
-backup_file "$CMDLINE_FILE"
+if ! backup_file "$CMDLINE_FILE"; then
+  exit 1
+fi
 
 # Clean up any existing boot settings to prevent duplicates
 sudo sed -i 's/ vc4\.force_hotplug=[^ ]*//g' "$CMDLINE_FILE"
