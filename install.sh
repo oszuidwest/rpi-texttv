@@ -27,8 +27,11 @@ source "$FUNCTIONS_LIB_PATH"
 # Set color variables
 set_colors
 
+# Check required tools are available
+require_tool "curl" "sed"
+
 # Check if the script is running as root
-check_user_privileges normal
+check_user_privileges regular
 
 # Ensure the script is running on a supported platform (Linux, 64-bit, Raspberry Pi 3 or newer)
 is_this_linux
@@ -78,6 +81,9 @@ set_timezone Europe/Amsterdam
 # Apply cmdline.txt modifications
 echo -e "${BLUE}►► Applying video and boot options...${NC}"
 
+# Backup cmdline.txt before modifications
+backup_file "$CMDLINE_FILE"
+
 # Clean up any existing boot settings to prevent duplicates
 sudo sed -i 's/ vc4\.force_hotplug=[^ ]*//g' "$CMDLINE_FILE"
 sudo sed -i 's/ video=HDMI-A-[12]:[^ ]*//g' "$CMDLINE_FILE"
@@ -103,11 +109,11 @@ install_packages silent xserver-xorg x11-xserver-utils x11-utils xinit openbox u
 
 # Set up the fallback wallpaper
 sudo mkdir -p /var/fallback
-sudo wget -q "$FALLBACKIMG_URL" -O /var/fallback/fallback.png
+download_file "$FALLBACKIMG_URL" "/var/fallback/fallback.png" "fallback wallpaper"
 
 # Download EDID data
 sudo mkdir -p /lib/firmware/edid/
-sudo wget -q "$EDID_DATA_URL" -O /lib/firmware/edid/edid.bin
+download_file "$EDID_DATA_URL" "/lib/firmware/edid/edid.bin" "EDID configuration"
 
 # Configure Openbox
 echo -e "${BLUE}►► Configuring Openbox...${NC}"
