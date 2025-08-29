@@ -3,7 +3,18 @@
 This repository provides a script to configure a Raspberry Pi as a narrowcasting screen, displaying a webpage in full-screen mode using Chromium. Additionally it can optionally use VLC to play a background audio track. The setup process includes installing essential packages, configuring the window manager, setting a fallback wallpaper, and enabling VNC for remote access.
 
 ## Compatibility
-This setup is designed for Raspberry Pi 3 or newer models and is tested only with Raspberry Pi OS Bookworm (64-bit) Lite. There's no need to install a full desktop environment, as this script installs and configures a lightweight alternative.
+
+### Supported Models
+- **Raspberry Pi 3B/3B+** - Single HDMI output
+- **Raspberry Pi 4** - Dual HDMI output support
+- **Raspberry Pi 5** - Dual HDMI output support
+- **Raspberry Pi 400** - Dual HDMI output support (keyboard computer)
+- **Raspberry Pi 500** - Dual HDMI output support (keyboard computer)
+
+This setup is tested with Raspberry Pi OS Bookworm (64-bit) Lite. There's no need to install a full desktop environment, as this script installs and configures a lightweight alternative.
+
+### Dual Screen Support
+Raspberry Pi 4, Pi 5, Pi 400, and Pi 500 models support dual HDMI outputs. The script automatically detects these models and offers to configure both displays for simultaneous content display.
 
 ## Usage
 To get started, install Raspberry Pi OS Bookworm (64-bit) and log in as a non-privileged user. It's important to avoid using `su` or `sudo` for root access during this process. Run the following command to execute the setup script:
@@ -25,6 +36,8 @@ The prompts for various configuration options. Below is a table listing each opt
 | `INSTALL_VLC`  | `y`           | Install VLC for audio playback. Set to 'n' to skip. |
 | `VLC_URL`      | `https://icecast.zuidwest.cloud/zuidwest.stl` | The stream URL for VLC playback. Only prompted if `INSTALL_VLC` is set to 'y'. |
 | `CHROME_URL`   | `https://teksttv.zuidwesttv.nl/` | The URL to display in Chromium kiosk mode. |
+| `USE_DUAL_SCREEN` | `n`        | Configure dual HDMI outputs (Pi 4/5/400/500 only). Set to 'y' to enable second display. |
+| `CHROME_URL_2` | Same as `CHROME_URL` | The URL to display on the second screen. Only prompted if `USE_DUAL_SCREEN` is set to 'y'. |
 
 ## Video and Boot Options
 
@@ -32,8 +45,8 @@ The setup script applies specific video and boot options to ensure compatibility
 
 | Option          | Default Value                       | Description |
 |-----------------|-----------------------------------|-------------|
-| `VIDEO_OPTIONS` | `video=HDMI-A-1:1920x1080@50D`     | Forces HDMI output at 1080i resolution with a 50Hz refresh rate at HDMI port 1 (HDMI-A). The `D` signifies interlaced mode. |
-| `BOOT_OPTIONS`  | `drm.edid_firmware=edid/edid.bin vc4.force_hotplug=0x01 consoleblank=1 logo.nologo` | Configures custom EDID data, forces HDMI hotplug detection, disables the console screen blanking after 1 minute, and suppresses the boot logo. |
+| `VIDEO_OPTIONS` | `video=HDMI-A-1:1920x1080@50D`     | Forces HDMI output at 1080i resolution with a 50Hz refresh rate. For dual screen setup, automatically adds `video=HDMI-A-2:1920x1080@50D`. The `D` signifies interlaced mode. |
+| `BOOT_OPTIONS`  | `drm.edid_firmware=edid/edid.bin vc4.force_hotplug=0x01 consoleblank=1 logo.nologo` | Configures custom EDID data, forces HDMI hotplug detection (0x03 for dual screens), disables console blanking, and suppresses the boot logo. |
 
 To adjust these settings, edit the `VIDEO_OPTIONS` and `BOOT_OPTIONS` variables in the script.
 
@@ -42,7 +55,7 @@ To adjust these settings, edit the `VIDEO_OPTIONS` and `BOOT_OPTIONS` variables 
 - **Unclutter**: A utility to hide the mouse cursor when idle, for a clean screen presentation.
 - **Openbox**: A lightweight window manager that automatically starts and manages Chromium and other display settings, ensuring a minimal graphical environment.
 - **Feh**: Used to display a fallback wallpaper in the absence of other graphical content.
-- **Chromium**: Used to display the web application in full-screen kiosk mode, concealing all browser controls and unnecessary features such as translations.
+- **Chromium**: Runs in kiosk mode to display web applications full-screen. For dual screen setups, two independent Chromium instances are launched with separate user data directories.
 - **RealVNC**: Provides remote desktop access to the Raspberry Pi on the default port 5900.
 
 ## License
