@@ -59,10 +59,10 @@ fi
 
 ask_user "CHROME_URL" "https://teksttv.zuidwesttv.nl/" "What URL should be opened and displayed by Chrome?" "str"
 
-# Check for dual HDMI capability (Pi 4/5/400)
+# Check for dual HDMI capability (Pi 4/5/400/500)
 PI_MODEL=$(tr -d '\0' < /proc/device-tree/model 2>/dev/null || echo "")
 
-if [[ "$PI_MODEL" =~ Pi\ [45] ]] || [[ "$PI_MODEL" =~ Pi\ 400 ]]; then
+if [[ "$PI_MODEL" =~ Pi\ [45] ]] || [[ "$PI_MODEL" =~ Pi\ [45]00 ]]; then
   ask_user "USE_DUAL_SCREEN" "n" "This Pi supports dual screens. Configure second HDMI output? (y/n)" "y/n"
   
   if [ "$USE_DUAL_SCREEN" == "y" ]; then
