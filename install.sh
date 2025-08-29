@@ -174,8 +174,16 @@ fi
 
 # Start VLC audio stream if configured
 if [ "${INSTALL_VLC:-n}" = "y" ] && [ -n "$VLC_URL" ]; then
-  cvlc --aout alsa --alsa-audio-device=hdmi:CARD=vc4hdmi,DEV=0 --gain 0.3 --intf dummy --loop \
-    "$VLC_URL" :http-user-agent="Raspberry Pi ($(hostname))"
+  # Start VLC for HDMI Port 0 (primary display)
+  cvlc --aout alsa --alsa-audio-device=hdmi:CARD=vc4hdmi0,DEV=0 --gain 0.3 --intf dummy --loop \
+    "$VLC_URL" :http-user-agent="Raspberry Pi ($(hostname)) - HDMI0" &
+  
+  # Start VLC for HDMI Port 1 if dual screen is enabled
+  if [ "$USE_DUAL_SCREEN" = "y" ]; then
+    sleep 1  # Small delay to prevent simultaneous startup issues
+    cvlc --aout alsa --alsa-audio-device=hdmi:CARD=vc4hdmi1,DEV=0 --gain 0.3 --intf dummy --loop \
+      "$VLC_URL" :http-user-agent="Raspberry Pi ($(hostname)) - HDMI1" &
+  fi
 fi
 EOF
 

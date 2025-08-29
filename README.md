@@ -16,6 +16,9 @@ This setup is tested with Raspberry Pi OS Bookworm (64-bit) Lite. There's no nee
 ### Dual Screen Support
 Raspberry Pi 4, Pi 5, Pi 400, and Pi 500 models support dual HDMI outputs. The script automatically detects these models and offers to configure both displays for simultaneous content display.
 
+#### Audio on Dual Screens
+When dual screen mode is enabled with VLC audio, the script automatically configures audio output to both HDMI ports. This ensures that the same audio stream plays through both connected displays. The implementation uses two synchronized VLC instances, each targeting a specific HDMI audio device (vc4hdmi0 and vc4hdmi1).
+
 ## Usage
 To get started, install Raspberry Pi OS Bookworm (64-bit) and log in as a non-privileged user. It's important to avoid using `su` or `sudo` for root access during this process. Run the following command to execute the setup script:
 
@@ -33,7 +36,7 @@ The prompts for various configuration options. Below is a table listing each opt
 |----------------|---------------|-------------|
 | `DO_UPDATES`   | `y`           | Perform all available OS updates during setup. Set to 'n' to skip updates. |
 | `INSTALL_VNC`  | `y`           | Install RealVNC for remote desktop access. Set to 'n' to skip. |
-| `INSTALL_VLC`  | `y`           | Install VLC for audio playback. Set to 'n' to skip. |
+| `INSTALL_VLC`  | `y`           | Install VLC for audio playback. When dual screen is enabled, audio will play on both HDMI outputs. Set to 'n' to skip. |
 | `VLC_URL`      | `https://icecast.zuidwest.cloud/zuidwest.stl` | The stream URL for VLC playback. Only prompted if `INSTALL_VLC` is set to 'y'. |
 | `CHROME_URL`   | `https://teksttv.zuidwesttv.nl/` | The URL to display in Chromium kiosk mode. |
 | `USE_DUAL_SCREEN` | `n`        | Configure dual HDMI outputs (Pi 4/5/400/500 only). Set to 'y' to enable second display. |
