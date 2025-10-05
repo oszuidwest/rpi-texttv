@@ -13,6 +13,9 @@ This repository provides a script to configure a Raspberry Pi as a narrowcasting
 
 This setup is tested with Raspberry Pi OS Bookworm (64-bit) Lite. There's no need to install a full desktop environment, as this script installs and configures a lightweight alternative.
 
+> [!WARNING]
+> Raspberry Pi OS 13 (Trixie) is currently **not supported** due to VNC compatibility issues. RealVNC is no longer included in Trixie, and raspi-config has not been updated for this version. Please use Raspberry Pi OS 12 (Bookworm) for full functionality.
+
 ### Dual Screen Support
 Raspberry Pi 4, Pi 5, Pi 400, and Pi 500 models support dual HDMI outputs. The script automatically detects these models and offers to configure both displays for simultaneous content display.
 
