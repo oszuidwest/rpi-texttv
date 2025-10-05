@@ -8,6 +8,7 @@ EDID_DATA_URL="https://raw.githubusercontent.com/oszuidwest/rpi-texttv/main/edid
 # System paths
 FUNCTIONS_LIB_PATH="/tmp/functions.sh"
 CMDLINE_FILE="/boot/firmware/cmdline.txt"
+CONFIG_FILE="/boot/firmware/config.txt"
 
 # Display configuration (1920x1080 @ 50Hz interlaced)
 VIDEO_OPTIONS="video=HDMI-A-1:1920x1080@50D"
@@ -96,6 +97,27 @@ sudo sed -i 's/ logo\.nologo//g' "$CMDLINE_FILE"
 # Apply new boot options
 CMDLINE_OPTIONS="$VIDEO_OPTIONS $BOOT_OPTIONS"
 sudo sed -i "\$ s|\$| $CMDLINE_OPTIONS|" "$CMDLINE_FILE"
+
+# Apply cooling fan configuration for Pi 5 only
+if [[ "$PI_MODEL" =~ Pi\ 5 ]]; then
+  echo -e "${BLUE}►► Configuring cooling fan settings for Pi 5...${NC}"
+
+  # Backup config.txt before modifications
+  if ! backup_file "$CONFIG_FILE"; then
+    exit 1
+  fi
+
+  # Remove any existing cooler section to prevent duplicates
+  sudo sh -c "awk '/^\[cooler\]/{skip=1; next} /^\[/{skip=0} !skip' '$CONFIG_FILE' > '$CONFIG_FILE.tmp' && \
+    mv '$CONFIG_FILE.tmp' '$CONFIG_FILE'" 2>/dev/null || true
+
+  # Add cooling fan configuration
+  echo -e "\n[cooler]" | sudo tee -a "$CONFIG_FILE" > /dev/null
+  echo "dtparam=cooling_fan=on" | sudo tee -a "$CONFIG_FILE" > /dev/null
+  echo "dtparam=fan_temp0=55000" | sudo tee -a "$CONFIG_FILE" > /dev/null
+  echo "dtparam=fan_temp0_hyst=20000" | sudo tee -a "$CONFIG_FILE" > /dev/null
+  echo "dtparam=fan_temp0_speed=255" | sudo tee -a "$CONFIG_FILE" > /dev/null
+fi
 
 # Perform OS updates if requested by the user
 if [ "$DO_UPDATES" == "y" ]; then

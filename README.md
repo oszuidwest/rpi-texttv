@@ -16,6 +16,15 @@ This setup is tested with Raspberry Pi OS Bookworm (64-bit) Lite. There's no nee
 ### Dual Screen Support
 Raspberry Pi 4, Pi 5, Pi 400, and Pi 500 models support dual HDMI outputs. The script automatically detects these models and offers to configure both displays for simultaneous content display.
 
+### Cooling Fan Support (Pi 5 Only)
+For Raspberry Pi 5 models, the script automatically configures the active cooling fan with the following settings:
+- **Activation temperature**: 55°C - The fan starts when the CPU reaches this temperature
+- **Deactivation temperature**: 35°C - The fan stops when the CPU cools down to this point
+- **Hysteresis**: 20°C - This prevents the fan from constantly switching on/off around the threshold
+- **Speed**: 100% (255/255) - The fan runs at maximum speed when active
+
+This configuration ensures efficient cooling while minimizing unnecessary fan activation during light workloads.
+
 #### Audio on Dual Screens
 When dual screen mode is enabled with VLC audio, the script automatically configures audio output to both HDMI ports. This ensures that the same audio stream plays through both connected displays. The implementation uses two synchronized VLC instances, each targeting a specific HDMI audio device (vc4hdmi0 and vc4hdmi1).
 
