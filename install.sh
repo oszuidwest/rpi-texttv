@@ -52,6 +52,7 @@ ask_user "INSTALL_MPV" "y" "Do you want to install mpv player to play a stream b
 
 if [[ "$INSTALL_MPV" == "y" ]]; then
   ask_user "MPV_URL" "https://icecast.zuidwest.cloud/zuidwest.stl" "Enter the URL of the stream that mpv should play" "str"
+  ask_user "MPV_VOLUME" "75" "Enter the volume for mpv (0-100)" "str"
 fi
 
 ask_user "CHROME_URL" "https://teksttv.zuidwesttv.nl/" "What URL should be opened and displayed by Chrome?" "str"
@@ -136,6 +137,7 @@ CHROME_URL="${CHROME_URL}"
 CHROME_URL_2="${CHROME_URL_2:-$CHROME_URL}"
 INSTALL_MPV="${INSTALL_MPV:-n}"
 MPV_URL="${MPV_URL:-}"
+MPV_VOLUME="${MPV_VOLUME:-75}"
 EOF
 
 cat << 'EOF' > ~/.config/openbox/autostart
@@ -195,7 +197,7 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/mpv --audio-device=alsa/hdmi:CARD=vc4hdmi$1,DEV=0 --volume=75 --network-timeout=2 --demuxer-readahead-secs=1 --user-agent="Raspberry Pi ($(hostname)) - HDMI$1" "${MPV_URL}"
+ExecStart=/usr/bin/mpv --audio-device=alsa/hdmi:CARD=vc4hdmi$1,DEV=0 --volume=${MPV_VOLUME:-75} --network-timeout=2 --demuxer-readahead-secs=1 --user-agent="Raspberry Pi ($(hostname)) - HDMI$1" "${MPV_URL}"
 Restart=always
 RestartSec=5
 StartLimitIntervalSec=0

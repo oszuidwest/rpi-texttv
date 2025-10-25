@@ -50,6 +50,7 @@ The prompts for various configuration options. Below is a table listing each opt
 | `INSTALL_VNC`  | `y`           | Install RealVNC for remote desktop access. Set to 'n' to skip. |
 | `INSTALL_MPV`  | `y`           | Install mpv for audio playback. When dual screen is enabled, audio will play on both HDMI outputs. Set to 'n' to skip. |
 | `MPV_URL`      | `https://icecast.zuidwest.cloud/zuidwest.stl` | The stream URL for mpv playback. Only prompted if `INSTALL_MPV` is set to 'y'. |
+| `MPV_VOLUME`   | `75`          | Audio volume for mpv (0-100). Only prompted if `INSTALL_MPV` is set to 'y'. |
 | `CHROME_URL`   | `https://teksttv.zuidwesttv.nl/` | The URL to display in Chromium kiosk mode. |
 | `USE_DUAL_SCREEN` | `n`        | Configure dual HDMI outputs (Pi 4/5/400/500 only). Set to 'y' to enable second display. |
 | `CHROME_URL_2` | Same as `CHROME_URL` | The URL to display on the second screen. Only prompted if `USE_DUAL_SCREEN` is set to 'y'. |
