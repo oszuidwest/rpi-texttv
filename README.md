@@ -1,6 +1,6 @@
 # Raspberry Pi Text TV Setup
 
-This repository provides a script to configure a Raspberry Pi as a narrowcasting screen, displaying a webpage in full-screen mode using Chromium. Additionally it can optionally use VLC to play a background audio track. The setup process includes installing essential packages, configuring the window manager, setting a fallback wallpaper, and enabling VNC for remote access.
+This repository provides a script to configure a Raspberry Pi as a narrowcasting screen, displaying a webpage in full-screen mode using Chromium. Additionally it can optionally use mpv to play a background audio track. The setup process includes installing essential packages, configuring the window manager, setting a fallback wallpaper, and enabling VNC for remote access.
 
 ## Compatibility
 
@@ -29,7 +29,7 @@ For Raspberry Pi 5 models, the script automatically configures the active coolin
 This configuration ensures efficient cooling while minimizing unnecessary fan activation during light workloads.
 
 #### Audio on Dual Screens
-When dual screen mode is enabled with VLC audio, the script automatically configures audio output to both HDMI ports. This ensures that the same audio stream plays through both connected displays. The implementation uses two synchronized VLC instances, each targeting a specific HDMI audio device (vc4hdmi0 and vc4hdmi1).
+When dual screen mode is enabled with mpv audio, the script automatically configures audio output to both HDMI ports. This ensures that the same audio stream plays through both connected displays. The implementation uses two synchronized mpv instances, each targeting a specific HDMI audio device (vc4hdmi0 and vc4hdmi1).
 
 ## Usage
 To get started, install Raspberry Pi OS Bookworm (64-bit) and log in as a non-privileged user. It's important to avoid using `su` or `sudo` for root access during this process. Run the following command to execute the setup script:
@@ -48,8 +48,8 @@ The prompts for various configuration options. Below is a table listing each opt
 |----------------|---------------|-------------|
 | `DO_UPDATES`   | `y`           | Perform all available OS updates during setup. Set to 'n' to skip updates. |
 | `INSTALL_VNC`  | `y`           | Install RealVNC for remote desktop access. Set to 'n' to skip. |
-| `INSTALL_VLC`  | `y`           | Install VLC for audio playback. When dual screen is enabled, audio will play on both HDMI outputs. Set to 'n' to skip. |
-| `VLC_URL`      | `https://icecast.zuidwest.cloud/zuidwest.stl` | The stream URL for VLC playback. Only prompted if `INSTALL_VLC` is set to 'y'. |
+| `INSTALL_MPV`  | `y`           | Install mpv for audio playback. When dual screen is enabled, audio will play on both HDMI outputs. Set to 'n' to skip. |
+| `MPV_URL`      | `https://icecast.zuidwest.cloud/zuidwest.stl` | The stream URL for mpv playback. Only prompted if `INSTALL_MPV` is set to 'y'. |
 | `CHROME_URL`   | `https://teksttv.zuidwesttv.nl/` | The URL to display in Chromium kiosk mode. |
 | `USE_DUAL_SCREEN` | `n`        | Configure dual HDMI outputs (Pi 4/5/400/500 only). Set to 'y' to enable second display. |
 | `CHROME_URL_2` | Same as `CHROME_URL` | The URL to display on the second screen. Only prompted if `USE_DUAL_SCREEN` is set to 'y'. |
