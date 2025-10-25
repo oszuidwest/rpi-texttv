@@ -48,10 +48,10 @@ echo -e "${GREEN}⎎ Raspberry Pi Tekst TV Set-up${NC}\n\n"
 # Gather user preferences
 ask_user "DO_UPDATES" "y" "Do you want to perform all OS updates? (y/n)" "y/n"
 ask_user "INSTALL_VNC" "y" "Do you want to install VNC for remote control of this device? (y/n)" "y/n"
-ask_user "INSTALL_VLC" "y" "Do you want to install VLC player to play a stream behind the narrowcast? (y/n)" "y/n"
+ask_user "INSTALL_MPV" "y" "Do you want to install mpv player to play a stream behind the narrowcast? (y/n)" "y/n"
 
-if [[ "$INSTALL_VLC" == "y" ]]; then
-  ask_user "VLC_URL" "https://icecast.zuidwest.cloud/zuidwest.stl" "Enter the URL of the stream that VLC should play" "str"
+if [[ "$INSTALL_MPV" == "y" ]]; then
+  ask_user "MPV_URL" "https://icecast.zuidwest.cloud/zuidwest.stl" "Enter the URL of the stream that mpv should play" "str"
 fi
 
 ask_user "CHROME_URL" "https://teksttv.zuidwesttv.nl/" "What URL should be opened and displayed by Chrome?" "str"
@@ -114,7 +114,7 @@ fi
 install_packages silent xserver-xorg x11-xserver-utils x11-utils xinit openbox unclutter-xfixes \
   chromium-browser feh ttf-mscorefonts-installer fonts-crosextra-carlito \
   fonts-crosextra-caladea \
-  "$([[ "$INSTALL_VLC" == "y" ]] && echo "vlc")" \
+  "$([[ "$INSTALL_MPV" == "y" ]] && echo "mpv")" \
   "$([[ "$INSTALL_VNC" == "y" ]] && echo "realvnc-vnc-server")"
 
 # Set up the fallback wallpaper
@@ -134,13 +134,13 @@ cat << EOF > ~/.config/openbox/display.conf
 USE_DUAL_SCREEN="${USE_DUAL_SCREEN:-n}"
 CHROME_URL="${CHROME_URL}"
 CHROME_URL_2="${CHROME_URL_2:-$CHROME_URL}"
-INSTALL_VLC="${INSTALL_VLC:-n}"
-VLC_URL="${VLC_URL:-}"
+INSTALL_MPV="${INSTALL_MPV:-n}"
+MPV_URL="${MPV_URL:-}"
 EOF
 
 cat << 'EOF' > ~/.config/openbox/autostart
 #!/usr/bin/env bash
-[[ -f "${HOME}/.config/openbox/display.conf" ]] && . "${HOME}/.config/openbox/display.conf"
+[ -f "${HOME}/.config/openbox/display.conf" ] && . "${HOME}/.config/openbox/display.conf"
 
 # Disable screen blanking
 xset -dpms
@@ -153,7 +153,7 @@ xrandr --addmode HDMI-1 "1920x1080_50i"
 xrandr --output HDMI-1 --mode "1920x1080_50i"
 
 # Configure second display if enabled
-if [[ "$USE_DUAL_SCREEN" == "y" ]]; then
+if [ "$USE_DUAL_SCREEN" = "y" ]; then
   xrandr --addmode HDMI-2 "1920x1080_50i" 2>/dev/null
   xrandr --output HDMI-2 --mode "1920x1080_50i" --right-of HDMI-1 2>/dev/null
 fi
@@ -173,41 +173,41 @@ CHROME_FLAGS="--kiosk --noerrdialogs --disable-infobars --disable-session-crashe
 # Start Chromium instances
 chromium-browser $CHROME_FLAGS --window-position=0,0 --user-data-dir=/tmp/chrome-1 --app="$CHROME_URL" &
 
-if [[ "$USE_DUAL_SCREEN" == "y" ]]; then
+if [ "$USE_DUAL_SCREEN" = "y" ]; then
   sleep 2
   chromium-browser $CHROME_FLAGS --window-position=1920,0 --user-data-dir=/tmp/chrome-2 --app="${CHROME_URL_2:-$CHROME_URL}" &
 fi
-
-# Note: VLC audio managed by systemd services (vlc-hdmi0/hdmi1.service)
 EOF
 
 chmod +x ~/.config/openbox/autostart
 
-# Create VLC systemd services for auto-restart on crash
-if [[ "$INSTALL_VLC" == "y" ]]; then
-  echo -e "${BLUE}►► Configuring VLC systemd services...${NC}"
+# Create mpv systemd services for auto-restart on crash
+if [[ "$INSTALL_MPV" == "y" ]]; then
+  echo -e "${BLUE}►► Configuring mpv systemd services...${NC}"
   mkdir -p ~/.config/systemd/user
 
-  create_vlc_service() {
-    cat > ~/.config/systemd/user/vlc-hdmi"$1".service << EOF
+  create_mpv_service() {
+    cat > ~/.config/systemd/user/mpv-hdmi"$1".service <<EOF
 [Unit]
-Description=VLC Audio Stream (HDMI$1)
-After=sound.target
+Description=MPV Audio Stream (HDMI$1)
+After=network-online.target
+Wants=network-online.target
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/cvlc --aout alsa --alsa-audio-device=hdmi:CARD=vc4hdmi$1,DEV=0 --gain 0.15 --intf dummy --loop "${VLC_URL}" :http-user-agent="Raspberry Pi (\$(hostname)) - HDMI$1"
+ExecStart=/usr/bin/mpv --audio-device=alsa/hdmi:CARD=vc4hdmi$1,DEV=0 --volume=75 --network-timeout=2 --demuxer-readahead-secs=1 --user-agent="Raspberry Pi ($(hostname)) - HDMI$1" "${MPV_URL}"
 Restart=always
-RestartSec=3
+RestartSec=5
+StartLimitIntervalSec=0
 
 [Install]
 WantedBy=default.target
 EOF
-    systemctl --user enable vlc-hdmi"$1".service
+    systemctl --user enable mpv-hdmi"$1".service
   }
 
-  create_vlc_service 0
-  [[ "$USE_DUAL_SCREEN" == "y" ]] && create_vlc_service 1
+  create_mpv_service 0
+  [[ "$USE_DUAL_SCREEN" == "y" ]] && create_mpv_service 1
 
   sudo loginctl enable-linger "$USER"
   systemctl --user daemon-reload
@@ -216,7 +216,7 @@ fi
 # Start X11 automatically on tty1 login
 echo -e "${BLUE}►► Configuring auto-start...${NC}"
 cat << 'EOF' >> ~/.profile
-if [[ -z "$DISPLAY" ]] && [[ "$(tty)" == "/dev/tty1" ]]; then
+if [ -z "$DISPLAY" ] && [ "$(tty)" = "/dev/tty1" ]; then
   startx
 fi
 EOF
