@@ -6,16 +6,18 @@ FUNCTIONS_LIB_URL="https://raw.githubusercontent.com/oszuidwest/bash-functions/m
 EDID_DATA_URL="https://raw.githubusercontent.com/oszuidwest/rpi-texttv/main/edid.bin"
 
 # System paths
-FUNCTIONS_LIB_PATH="/tmp/functions.sh"
+FUNCTIONS_LIB_PATH=$(mktemp)
 CMDLINE_FILE="/boot/firmware/cmdline.txt"
 CONFIG_FILE="/boot/firmware/config.txt"
+
+# Clean up temporary file on exit
+trap 'rm -f "$FUNCTIONS_LIB_PATH"' EXIT
 
 # Display configuration (1920x1080 @ 50Hz interlaced)
 VIDEO_OPTIONS="video=HDMI-A-1:1920x1080@50D"
 BOOT_OPTIONS="drm.edid_firmware=edid/edid.bin vc4.force_hotplug=0x01 consoleblank=1 logo.nologo"
 
-# Download and source function library
-rm -f "$FUNCTIONS_LIB_PATH"
+# Download the functions library
 if ! curl -s -o "$FUNCTIONS_LIB_PATH" "$FUNCTIONS_LIB_URL"; then
   echo -e "*** Failed to download functions library. Please check your network connection! ***"
   exit 1
