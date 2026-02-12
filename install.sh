@@ -168,7 +168,7 @@ unclutter --timeout 0 --hide-on-touch --start-hidden --fork
 
 # Start Chromium in kiosk mode
 CHROME_FLAGS="--kiosk --noerrdialogs --disable-infobars --disable-session-crashed-bubble \
-  --disable-features=Translate --incognito --disable-extensions --disable-background-networking \
+  --disable-features=Translate --disable-translate --incognito --disable-extensions --disable-background-networking \
   --disable-background-timer-throttling --disable-client-side-phishing-detection --disable-default-apps \
   --disable-hang-monitor --disable-popup-blocking --disable-prompt-on-repost --disable-sync \
   --metrics-recording-only --no-first-run --no-default-browser-check --disable-component-update \
