@@ -128,6 +128,10 @@ download_file "$FALLBACKIMG_URL" "/var/fallback/fallback.png" "fallback wallpape
 sudo mkdir -p /lib/firmware/edid/
 download_file "$EDID_DATA_URL" "/lib/firmware/edid/edid.bin" "EDID configuration"
 
+# Disable Chromium translate prompt via managed policy
+sudo mkdir -p /etc/chromium/policies/managed
+echo '{"TranslateEnabled": false}' | sudo tee /etc/chromium/policies/managed/no-translate.json > /dev/null
+
 # Configure Openbox
 echo -e "${BLUE}►► Configuring Openbox...${NC}"
 mkdir -p ~/.config/openbox
@@ -168,7 +172,7 @@ unclutter --timeout 0 --hide-on-touch --start-hidden --fork
 
 # Start Chromium in kiosk mode
 CHROME_FLAGS="--kiosk --noerrdialogs --disable-infobars --disable-session-crashed-bubble \
-  --disable-features=Translate --disable-translate --incognito --disable-extensions --disable-background-networking \
+  --incognito --disable-extensions --disable-background-networking \
   --disable-background-timer-throttling --disable-client-side-phishing-detection --disable-default-apps \
   --disable-hang-monitor --disable-popup-blocking --disable-prompt-on-repost --disable-sync \
   --metrics-recording-only --no-first-run --no-default-browser-check --disable-component-update \
