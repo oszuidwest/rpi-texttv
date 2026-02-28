@@ -1,77 +1,62 @@
 # Raspberry Pi Text TV Setup
 
-This repository provides a script to configure a Raspberry Pi as a narrowcasting screen, displaying a webpage in full-screen mode using Chromium. Additionally it can optionally use mpv to play a background audio track. The setup process includes installing essential packages, configuring the window manager, setting a fallback wallpaper, and enabling VNC for remote access.
+This script configures a Raspberry Pi as a narrowcasting screen, displaying a webpage in full-screen Chromium with optional background audio via mpv.
 
 ## Compatibility
 
 ### Supported Models
-- **Raspberry Pi 4** - Dual HDMI output support
-- **Raspberry Pi 5** - Dual HDMI output support
-- **Raspberry Pi 400** - Dual HDMI output support (keyboard computer)
-- **Raspberry Pi 500** - Dual HDMI output support (keyboard computer)
+- **Raspberry Pi 4**
+- **Raspberry Pi 5**
+- **Raspberry Pi 400**
+- **Raspberry Pi 500**
 
-This setup is tested with Raspberry Pi OS Trixie (64-bit) Lite. There's no need to install a full desktop environment, as this script installs and configures a lightweight alternative.
+Requires Raspberry Pi OS Trixie (64-bit) Lite. No full desktop environment needed — the script installs a lightweight X11 stack.
 
 ### Dual Screen Support
 All supported models have dual HDMI outputs. The script offers to configure both displays for simultaneous content display.
 
-### Cooling Fan Support (Pi 5 Only)
-For Raspberry Pi 5 models, the script automatically configures the active cooling fan with the following settings:
-- **Activation temperature**: 55°C - The fan starts when the CPU reaches this temperature
-- **Deactivation temperature**: 35°C - The fan stops when the CPU cools down to this point
-- **Hysteresis**: 20°C - This prevents the fan from constantly switching on/off around the threshold
-- **Speed**: 100% (255/255) - The fan runs at maximum speed when active
-
-This configuration ensures efficient cooling while minimizing unnecessary fan activation during light workloads.
-
-#### Audio on Dual Screens
-When dual screen mode is enabled with mpv audio, the script automatically configures audio output to both HDMI ports. This ensures that the same audio stream plays through both connected displays. The implementation uses two synchronized mpv instances, each targeting a specific HDMI audio device (vc4hdmi0 and vc4hdmi1).
+### Cooling Fan (Pi 5 Only)
+The script automatically configures the active cooling fan: on at 55°C, off at 35°C, 100% speed.
 
 ## Usage
-To get started, install Raspberry Pi OS Trixie (64-bit) Lite and log in as a non-privileged user. It's important to avoid using `su` or `sudo` for root access during this process. Run the following command to execute the setup script:
+Install Raspberry Pi OS Trixie (64-bit) Lite and log in as a non-privileged user. Do not use `su` or `sudo`. Run:
 
 ```bash
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/oszuidwest/rpi-texttv/main/install.sh)"
 ```
 
-This command will download and run the script, automatically installing the necessary packages and configuring your Raspberry Pi for kiosk mode.
+## Configuration Options
 
-## Customization
+The script prompts for the following options during setup:
 
-The prompts for various configuration options. Below is a table listing each option, its default value, and a brief explanation:
-
-| Option         | Default Value | Description |
-|----------------|---------------|-------------|
-| `DO_UPDATES`   | `y`           | Perform all available OS updates during setup. Set to 'n' to skip updates. |
-| `INSTALL_VNC`  | `y`           | Install RealVNC for remote desktop access. Set to 'n' to skip. |
-| `INSTALL_MPV`  | `y`           | Install mpv for audio playback. When dual screen is enabled, audio will play on both HDMI outputs. Set to 'n' to skip. |
-| `MPV_URL`      | `https://icecast.zuidwest.cloud/zuidwest.stl` | The stream URL for mpv playback. Only prompted if `INSTALL_MPV` is set to 'y'. |
-| `MPV_VOLUME`   | `75`          | Audio volume for mpv (0-100). Only prompted if `INSTALL_MPV` is set to 'y'. |
-| `CHROME_URL`   | `https://teksttv.zuidwesttv.nl/` | The URL to display in Chromium kiosk mode. |
-| `USE_DUAL_SCREEN` | `n`        | Configure dual HDMI outputs (Pi 4/5/400/500 only). Set to 'y' to enable second display. |
-| `CHROME_URL_2` | Same as `CHROME_URL` | The URL to display on the second screen. Only prompted if `USE_DUAL_SCREEN` is set to 'y'. |
+| Option           | Default                                              | Description                                                    |
+|------------------|------------------------------------------------------|----------------------------------------------------------------|
+| `DO_UPDATES`     | `y`                                                  | Perform OS updates during setup                                |
+| `INSTALL_VNC`    | `y`                                                  | Install RealVNC for remote desktop access (port 5900)          |
+| `INSTALL_MPV`    | `y`                                                  | Install mpv for background audio playback                      |
+| `MPV_URL`        | `https://icecast.zuidwest.cloud/zuidwest.stl`        | Audio stream URL for mpv                                       |
+| `MPV_VOLUME`     | `75`                                                 | Audio volume (0-100)                                           |
+| `CHROME_URL`     | `https://teksttv.zuidwest.cloud/zuidwest-1/`         | URL to display in Chromium kiosk mode                          |
+| `USE_DUAL_SCREEN`| `n`                                                  | Configure second HDMI output                                   |
+| `CHROME_URL_2`   | Same as `CHROME_URL`                                 | URL for second screen                                          |
 
 ## Video and Boot Options
 
-The setup script applies specific video and boot options to ensure compatibility with various displays and force a consistent resolution. These are configured using the `VIDEO_OPTIONS` and `BOOT_OPTIONS` variables:
+The script configures HDMI output at 1080i/50Hz with custom EDID data. These can be adjusted by editing the `VIDEO_OPTIONS` and `BOOT_OPTIONS` variables in the script:
 
-| Option          | Default Value                       | Description |
-|-----------------|-----------------------------------|-------------|
-| `VIDEO_OPTIONS` | `video=HDMI-A-1:1920x1080@50D`     | Forces HDMI output at 1080i resolution with a 50Hz refresh rate. For dual screen setup, automatically adds `video=HDMI-A-2:1920x1080@50D`. The `D` signifies interlaced mode. |
-| `BOOT_OPTIONS`  | `drm.edid_firmware=edid/edid.bin vc4.force_hotplug=0x01 consoleblank=1 logo.nologo` | Configures custom EDID data, forces HDMI hotplug detection (0x03 for dual screens), disables console blanking, and suppresses the boot logo. |
+| Variable         | Default                                                                              |
+|------------------|--------------------------------------------------------------------------------------|
+| `VIDEO_OPTIONS`  | `video=HDMI-A-1:1920x1080@50D`                                                      |
+| `BOOT_OPTIONS`   | `drm.edid_firmware=edid/edid.bin vc4.force_hotplug=0x01 consoleblank=1 logo.nologo`  |
 
-To adjust these settings, edit the `VIDEO_OPTIONS` and `BOOT_OPTIONS` variables in the script.
+For dual screen setups, `video=HDMI-A-2:1920x1080@50D` is added automatically and `vc4.force_hotplug` is set to `0x03`.
 
-## Architectural Overview
-- **X11**: The display server that provides the graphical environment necessary for running applications like Chromium on the Raspberry Pi. The script ensures X11 starts automatically on boot.
-- **Unclutter**: A utility to hide the mouse cursor when idle, for a clean screen presentation.
-- **Openbox**: A lightweight window manager that automatically starts and manages Chromium and other display settings, ensuring a minimal graphical environment.
-- **Feh**: Used to display a fallback wallpaper in the absence of other graphical content.
-- **Chromium**: Runs in kiosk mode to display web applications full-screen. For dual screen setups, two independent Chromium instances are launched with separate user data directories.
-- **RealVNC**: Provides remote desktop access to the Raspberry Pi on the default port 5900.
+## Architecture
+
+The display stack: **X11 → Openbox → Chromium** (kiosk mode), with **feh** for wallpaper, **unclutter** to hide the cursor, and optionally **RealVNC** for remote access and **mpv** for audio. Dual screen runs two independent Chromium instances with separate user data directories.
 
 ## License
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT License. See [LICENSE](LICENSE).
 
 ## Contributing
-Contributions are welcome! Feel free to submit issues and pull requests for improvements and additional features.
+Contributions welcome. Feel free to submit issues and pull requests.
