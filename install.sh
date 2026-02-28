@@ -2,7 +2,7 @@
 
 # External resources
 FALLBACKIMG_URL="https://raw.githubusercontent.com/oszuidwest/windows10-baseline/main/assets/ZWTV-wallpaper.png"
-FUNCTIONS_LIB_URL="https://raw.githubusercontent.com/oszuidwest/bash-functions/main/common-functions.sh"
+FUNCTIONS_LIB_URL="https://raw.githubusercontent.com/oszuidwest/bash-functions/v2/common-functions.sh"
 EDID_DATA_URL="https://raw.githubusercontent.com/oszuidwest/rpi-texttv/main/edid.bin"
 
 # System paths
@@ -25,16 +25,17 @@ fi
 
 # shellcheck source=/dev/null
 source "$FUNCTIONS_LIB_PATH"
-# Set color variables
+# Set color variables and get sudo command
 set_colors
+SUDO=$(get_sudo)
 # Check required tools are available
-require_tool "curl" "sed"
+assert_tool "curl" "sed"
 
-# Validate environment (must run as regular user, on Linux 64-bit, Pi 3 or newer)
-check_user_privileges regular
-is_this_linux
-is_this_os_64bit
-check_rpi_model 4
+# Validate environment (must run as regular user, on Linux 64-bit, Pi 4 or newer)
+assert_user_privileged "regular"
+assert_os_linux
+assert_os_64bit
+assert_hw_rpi 4
 
 clear
 cat << "EOF"
@@ -48,22 +49,26 @@ EOF
 echo -e "${GREEN}⎎ Raspberry Pi Tekst TV Set-up${NC}\n\n"
 
 # Gather user preferences
-ask_user "DO_UPDATES" "y" "Do you want to perform all OS updates? (y/n)" "y/n"
-ask_user "INSTALL_VNC" "y" "Do you want to install VNC for remote control of this device? (y/n)" "y/n"
-ask_user "INSTALL_MPV" "y" "Do you want to install mpv player to play a stream behind the narrowcast? (y/n)" "y/n"
+prompt_user "DO_UPDATES" "y" "Perform OS updates? (y/n)" "y/n"
+prompt_user "INSTALL_VNC" "y" "Install VNC for remote control? (y/n)" "y/n"
+prompt_user "INSTALL_MPV" "y" "Install mpv for audio stream behind narrowcast? (y/n)" "y/n"
 
 if [[ "$INSTALL_MPV" == "y" ]]; then
-  ask_user "MPV_URL" "https://icecast.zuidwest.cloud/zuidwest.stl" "Enter the URL of the stream that mpv should play" "str"
-  ask_user "MPV_VOLUME" "75" "Enter the volume for mpv (0-100)" "str"
+  prompt_user "MPV_URL" "https://icecast.zuidwest.cloud/zuidwest.stl" "Audio stream URL for mpv" "str"
+  prompt_user "MPV_VOLUME" "75" "MPV volume (0-100)" "num"
+  if [[ "$MPV_VOLUME" -lt 0 || "$MPV_VOLUME" -gt 100 ]]; then
+    echo -e "${RED}Volume must be between 0 and 100${NC}"
+    exit 1
+  fi
 fi
 
-ask_user "CHROME_URL" "https://teksttv.zuidwest.cloud/zuidwest-1/" "What URL should be opened and displayed by Chrome?" "str"
+prompt_user "CHROME_URL" "https://teksttv.zuidwest.cloud/zuidwest-1/" "URL to display in Chrome kiosk" "str"
 
 # All supported models (Pi 4/5/400/500) have dual HDMI
-ask_user "USE_DUAL_SCREEN" "n" "Configure second HDMI output for dual-screen? (y/n)" "y/n"
+prompt_user "USE_DUAL_SCREEN" "n" "Configure second HDMI output? (y/n)" "y/n"
 
 if [[ "$USE_DUAL_SCREEN" == "y" ]]; then
-  ask_user "CHROME_URL_2" "$CHROME_URL" "URL for second screen (default: same as primary)?" "str"
+  prompt_user "CHROME_URL_2" "$CHROME_URL" "URL for second screen" "str"
   VIDEO_OPTIONS="$VIDEO_OPTIONS video=HDMI-A-2:1920x1080@50D"
   BOOT_OPTIONS="${BOOT_OPTIONS/vc4.force_hotplug=0x01/vc4.force_hotplug=0x03}"
 fi
@@ -73,12 +78,12 @@ PI_MODEL=$(tr -d '\0' < /proc/device-tree/model 2>/dev/null || echo "")
 set_timezone Europe/Amsterdam
 
 echo -e "${BLUE}►► Applying video and boot options...${NC}"
-if ! backup_file "$CMDLINE_FILE"; then
+if ! file_backup "$CMDLINE_FILE"; then
   exit 1
 fi
 
 # Remove existing boot parameters to prevent duplicates
-sudo sed -i \
+$SUDO sed -i \
   -e 's/ vc4\.force_hotplug=[^ ]*//g' \
   -e 's/ video=HDMI-A-[12]:[^ ]*//g' \
   -e 's/ drm\.edid_firmware=[^ ]*//g' \
@@ -87,20 +92,20 @@ sudo sed -i \
   "$CMDLINE_FILE"
 
 CMDLINE_OPTIONS="$VIDEO_OPTIONS $BOOT_OPTIONS"
-sudo sed -i "\$ s|\$| $CMDLINE_OPTIONS|" "$CMDLINE_FILE"
+$SUDO sed -i "\$ s|\$| $CMDLINE_OPTIONS|" "$CMDLINE_FILE"
 
 # Pi 5: Configure active cooling fan (55°C on, 35°C off, 100% speed)
 if [[ "$PI_MODEL" =~ Pi\ 5 ]]; then
   echo -e "${BLUE}►► Configuring cooling fan settings for Pi 5...${NC}"
-  if ! backup_file "$CONFIG_FILE"; then
+  if ! file_backup "$CONFIG_FILE"; then
     exit 1
   fi
 
   # Remove existing [cooler] section to prevent duplicates
-  sudo sh -c "awk '/^\[cooler\]/{skip=1; next} /^\[/{skip=0} !skip' '$CONFIG_FILE' > '$CONFIG_FILE.tmp' && \
+  $SUDO sh -c "awk '/^\[cooler\]/{skip=1; next} /^\[/{skip=0} !skip' '$CONFIG_FILE' > '$CONFIG_FILE.tmp' && \
     mv '$CONFIG_FILE.tmp' '$CONFIG_FILE'" 2>/dev/null || true
 
-  cat << 'COOLEREOF' | sudo tee -a "$CONFIG_FILE" > /dev/null
+  cat << 'COOLEREOF' | $SUDO tee -a "$CONFIG_FILE" > /dev/null
 
 [cooler]
 dtparam=cooling_fan=on
@@ -112,27 +117,27 @@ fi
 
 # Perform OS updates if requested by the user
 if [[ "$DO_UPDATES" == "y" ]]; then
-  update_os silent
+  apt_update --silent
 fi
 
 # Install necessary packages
-install_packages silent xserver-xorg x11-xserver-utils x11-utils xinit openbox unclutter-xfixes \
+apt_install --silent xserver-xorg x11-xserver-utils x11-utils xinit openbox unclutter-xfixes \
   chromium feh ttf-mscorefonts-installer fonts-crosextra-carlito \
   fonts-crosextra-caladea \
   "$([[ "$INSTALL_MPV" == "y" ]] && echo "mpv")" \
   "$([[ "$INSTALL_VNC" == "y" ]] && echo "realvnc-vnc-server")"
 
 # Set up the fallback wallpaper
-sudo mkdir -p /var/fallback
-download_file "$FALLBACKIMG_URL" "/var/fallback/fallback.png" "fallback wallpaper"
+$SUDO mkdir -p /var/fallback
+file_download "$FALLBACKIMG_URL" "/var/fallback/fallback.png" "fallback wallpaper"
 
 # Download EDID data
-sudo mkdir -p /usr/lib/firmware/edid/
-download_file "$EDID_DATA_URL" "/usr/lib/firmware/edid/edid.bin" "EDID configuration"
+$SUDO mkdir -p /usr/lib/firmware/edid/
+file_download "$EDID_DATA_URL" "/usr/lib/firmware/edid/edid.bin" "EDID configuration"
 
 # Configure Xorg to use the vc4 GPU (Pi 4/5 have v3d on card0 which confuses Xorg)
-sudo mkdir -p /usr/share/X11/xorg.conf.d
-cat << 'XORGEOF' | sudo tee /usr/share/X11/xorg.conf.d/99-vc4.conf > /dev/null
+$SUDO mkdir -p /usr/share/X11/xorg.conf.d
+cat << 'XORGEOF' | $SUDO tee /usr/share/X11/xorg.conf.d/99-vc4.conf > /dev/null
 Section "Device"
   Identifier "vc4"
   Driver     "modesetting"
@@ -141,8 +146,8 @@ EndSection
 XORGEOF
 
 # Disable Chromium translate prompt via managed policy
-sudo mkdir -p /etc/chromium/policies/managed
-echo '{"TranslateEnabled": false}' | sudo tee /etc/chromium/policies/managed/no-translate.json > /dev/null
+$SUDO mkdir -p /etc/chromium/policies/managed
+echo '{"TranslateEnabled": false}' | $SUDO tee /etc/chromium/policies/managed/no-translate.json > /dev/null
 
 # Configure Openbox
 echo -e "${BLUE}►► Configuring Openbox...${NC}"
@@ -229,7 +234,7 @@ EOF
   create_mpv_service 0
   [[ "$USE_DUAL_SCREEN" == "y" ]] && create_mpv_service 1
 
-  sudo loginctl enable-linger "$USER"
+  $SUDO loginctl enable-linger "$USER"
   systemctl --user daemon-reload
 fi
 
@@ -242,20 +247,20 @@ fi
 EOF
 
 # Configure boot behavior
-sudo raspi-config nonint do_boot_behaviour B2
+$SUDO raspi-config nonint do_boot_behaviour B2
 
 if [[ "$INSTALL_VNC" == "y" ]]; then
-  sudo raspi-config nonint do_vnc 0
+  $SUDO raspi-config nonint do_vnc 0
   # Prevent wayvnc from conflicting with RealVNC on port 5900
-  sudo systemctl disable wayvnc.service 2>/dev/null || true
-  sudo systemctl stop wayvnc.service 2>/dev/null || true
+  $SUDO systemctl disable wayvnc.service 2>/dev/null || true
+  $SUDO systemctl stop wayvnc.service 2>/dev/null || true
 fi
 
 # Clean up unnecessary packages
 echo -e "${BLUE}►► Cleaning up...${NC}"
-sudo apt -qq remove cups -y
-sudo apt -qq autoremove -y
+$SUDO apt -qq remove cups -y
+$SUDO apt -qq autoremove -y
 
 # Configuration complete
 echo -e "${GREEN}Configuration complete. The system will now reboot.${NC}\n"
-sudo reboot
+$SUDO reboot
