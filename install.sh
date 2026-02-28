@@ -34,7 +34,7 @@ require_tool "curl" "sed"
 check_user_privileges regular
 is_this_linux
 is_this_os_64bit
-check_rpi_model 3
+check_rpi_model 4
 
 clear
 cat << "EOF"
@@ -59,18 +59,16 @@ fi
 
 ask_user "CHROME_URL" "https://teksttv.zuidwesttv.nl/" "What URL should be opened and displayed by Chrome?" "str"
 
-# Detect Pi model for dual HDMI support (Pi 4/5/400/500)
-PI_MODEL=$(tr -d '\0' < /proc/device-tree/model 2>/dev/null || echo "")
+# All supported models (Pi 4/5/400/500) have dual HDMI
+ask_user "USE_DUAL_SCREEN" "n" "Configure second HDMI output for dual-screen? (y/n)" "y/n"
 
-if [[ "$PI_MODEL" =~ Pi\ [45] ]] || [[ "$PI_MODEL" =~ Pi\ [45]00 ]]; then
-  ask_user "USE_DUAL_SCREEN" "n" "This Pi supports dual screens. Configure second HDMI output? (y/n)" "y/n"
-
-  if [[ "$USE_DUAL_SCREEN" == "y" ]]; then
-    ask_user "CHROME_URL_2" "$CHROME_URL" "URL for second screen (default: same as primary)?" "str"
-    VIDEO_OPTIONS="$VIDEO_OPTIONS video=HDMI-A-2:1920x1080@50D"
-    BOOT_OPTIONS="${BOOT_OPTIONS/vc4.force_hotplug=0x01/vc4.force_hotplug=0x03}"
-  fi
+if [[ "$USE_DUAL_SCREEN" == "y" ]]; then
+  ask_user "CHROME_URL_2" "$CHROME_URL" "URL for second screen (default: same as primary)?" "str"
+  VIDEO_OPTIONS="$VIDEO_OPTIONS video=HDMI-A-2:1920x1080@50D"
+  BOOT_OPTIONS="${BOOT_OPTIONS/vc4.force_hotplug=0x01/vc4.force_hotplug=0x03}"
 fi
+
+PI_MODEL=$(tr -d '\0' < /proc/device-tree/model 2>/dev/null || echo "")
 
 set_timezone Europe/Amsterdam
 
@@ -80,11 +78,13 @@ if ! backup_file "$CMDLINE_FILE"; then
 fi
 
 # Remove existing boot parameters to prevent duplicates
-sudo sed -i 's/ vc4\.force_hotplug=[^ ]*//g' "$CMDLINE_FILE"
-sudo sed -i 's/ video=HDMI-A-[12]:[^ ]*//g' "$CMDLINE_FILE"
-sudo sed -i 's/ drm\.edid_firmware=[^ ]*//g' "$CMDLINE_FILE"
-sudo sed -i 's/ consoleblank=[^ ]*//g' "$CMDLINE_FILE"
-sudo sed -i 's/ logo\.nologo//g' "$CMDLINE_FILE"
+sudo sed -i \
+  -e 's/ vc4\.force_hotplug=[^ ]*//g' \
+  -e 's/ video=HDMI-A-[12]:[^ ]*//g' \
+  -e 's/ drm\.edid_firmware=[^ ]*//g' \
+  -e 's/ consoleblank=[^ ]*//g' \
+  -e 's/ logo\.nologo//g' \
+  "$CMDLINE_FILE"
 
 CMDLINE_OPTIONS="$VIDEO_OPTIONS $BOOT_OPTIONS"
 sudo sed -i "\$ s|\$| $CMDLINE_OPTIONS|" "$CMDLINE_FILE"
@@ -100,12 +100,14 @@ if [[ "$PI_MODEL" =~ Pi\ 5 ]]; then
   sudo sh -c "awk '/^\[cooler\]/{skip=1; next} /^\[/{skip=0} !skip' '$CONFIG_FILE' > '$CONFIG_FILE.tmp' && \
     mv '$CONFIG_FILE.tmp' '$CONFIG_FILE'" 2>/dev/null || true
 
+  cat << 'COOLEREOF' | sudo tee -a "$CONFIG_FILE" > /dev/null
 
-  echo -e "\n[cooler]" | sudo tee -a "$CONFIG_FILE" > /dev/null
-  echo "dtparam=cooling_fan=on" | sudo tee -a "$CONFIG_FILE" > /dev/null
-  echo "dtparam=fan_temp0=55000" | sudo tee -a "$CONFIG_FILE" > /dev/null
-  echo "dtparam=fan_temp0_hyst=20000" | sudo tee -a "$CONFIG_FILE" > /dev/null
-  echo "dtparam=fan_temp0_speed=255" | sudo tee -a "$CONFIG_FILE" > /dev/null
+[cooler]
+dtparam=cooling_fan=on
+dtparam=fan_temp0=55000
+dtparam=fan_temp0_hyst=20000
+dtparam=fan_temp0_speed=255
+COOLEREOF
 fi
 
 # Perform OS updates if requested by the user
@@ -128,7 +130,7 @@ download_file "$FALLBACKIMG_URL" "/var/fallback/fallback.png" "fallback wallpape
 sudo mkdir -p /usr/lib/firmware/edid/
 download_file "$EDID_DATA_URL" "/usr/lib/firmware/edid/edid.bin" "EDID configuration"
 
-# Configure Xorg to use the correct GPU (vc4/KMS, not v3d)
+# Configure Xorg to use the vc4 GPU (Pi 4/5 have v3d on card0 which confuses Xorg)
 sudo mkdir -p /usr/share/X11/xorg.conf.d
 cat << 'XORGEOF' | sudo tee /usr/share/X11/xorg.conf.d/99-vc4.conf > /dev/null
 Section "Device"

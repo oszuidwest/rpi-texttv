@@ -5,7 +5,6 @@ This repository provides a script to configure a Raspberry Pi as a narrowcasting
 ## Compatibility
 
 ### Supported Models
-- **Raspberry Pi 3B/3B+** - Single HDMI output
 - **Raspberry Pi 4** - Dual HDMI output support
 - **Raspberry Pi 5** - Dual HDMI output support
 - **Raspberry Pi 400** - Dual HDMI output support (keyboard computer)
@@ -14,7 +13,7 @@ This repository provides a script to configure a Raspberry Pi as a narrowcasting
 This setup is tested with Raspberry Pi OS Trixie (64-bit) Lite. There's no need to install a full desktop environment, as this script installs and configures a lightweight alternative.
 
 ### Dual Screen Support
-Raspberry Pi 4, Pi 5, Pi 400, and Pi 500 models support dual HDMI outputs. The script automatically detects these models and offers to configure both displays for simultaneous content display.
+All supported models have dual HDMI outputs. The script offers to configure both displays for simultaneous content display.
 
 ### Cooling Fan Support (Pi 5 Only)
 For Raspberry Pi 5 models, the script automatically configures the active cooling fan with the following settings:
