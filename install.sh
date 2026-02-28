@@ -115,7 +115,7 @@ fi
 
 # Install necessary packages
 install_packages silent xserver-xorg x11-xserver-utils x11-utils xinit openbox unclutter-xfixes \
-  chromium-browser feh ttf-mscorefonts-installer fonts-crosextra-carlito \
+  chromium feh ttf-mscorefonts-installer fonts-crosextra-carlito \
   fonts-crosextra-caladea \
   "$([[ "$INSTALL_MPV" == "y" ]] && echo "mpv")" \
   "$([[ "$INSTALL_VNC" == "y" ]] && echo "realvnc-vnc-server")"
@@ -125,8 +125,18 @@ sudo mkdir -p /var/fallback
 download_file "$FALLBACKIMG_URL" "/var/fallback/fallback.png" "fallback wallpaper"
 
 # Download EDID data
-sudo mkdir -p /lib/firmware/edid/
-download_file "$EDID_DATA_URL" "/lib/firmware/edid/edid.bin" "EDID configuration"
+sudo mkdir -p /usr/lib/firmware/edid/
+download_file "$EDID_DATA_URL" "/usr/lib/firmware/edid/edid.bin" "EDID configuration"
+
+# Configure Xorg to use the correct GPU (vc4/KMS, not v3d)
+sudo mkdir -p /usr/share/X11/xorg.conf.d
+cat << 'XORGEOF' | sudo tee /usr/share/X11/xorg.conf.d/99-vc4.conf > /dev/null
+Section "Device"
+  Identifier "vc4"
+  Driver     "modesetting"
+  Option     "kmsdev" "/dev/dri/card1"
+EndSection
+XORGEOF
 
 # Disable Chromium translate prompt via managed policy
 sudo mkdir -p /etc/chromium/policies/managed
@@ -176,14 +186,14 @@ CHROME_FLAGS="--kiosk --noerrdialogs --disable-infobars --disable-session-crashe
   --disable-background-timer-throttling --disable-client-side-phishing-detection --disable-default-apps \
   --disable-hang-monitor --disable-popup-blocking --disable-prompt-on-repost --disable-sync \
   --metrics-recording-only --no-first-run --no-default-browser-check --disable-component-update \
-  --disable-backgrounding-occluded-windows --disable-renderer-backgrounding"
+  --disable-backgrounding-occluded-windows --disable-renderer-backgrounding --password-store=basic"
 
 # Start Chromium instances
-chromium-browser $CHROME_FLAGS --window-position=0,0 --user-data-dir=/tmp/chrome-1 --app="$CHROME_URL" &
+chromium $CHROME_FLAGS --window-position=0,0 --user-data-dir=/tmp/chrome-1 --app="$CHROME_URL" &
 
 if [ "$USE_DUAL_SCREEN" = "y" ]; then
   sleep 2
-  chromium-browser $CHROME_FLAGS --window-position=1920,0 --user-data-dir=/tmp/chrome-2 --app="${CHROME_URL_2:-$CHROME_URL}" &
+  chromium $CHROME_FLAGS --window-position=1920,0 --user-data-dir=/tmp/chrome-2 --app="${CHROME_URL_2:-$CHROME_URL}" &
 fi
 EOF
 
@@ -234,6 +244,9 @@ sudo raspi-config nonint do_boot_behaviour B2
 
 if [[ "$INSTALL_VNC" == "y" ]]; then
   sudo raspi-config nonint do_vnc 0
+  # Prevent wayvnc from conflicting with RealVNC on port 5900
+  sudo systemctl disable wayvnc.service 2>/dev/null || true
+  sudo systemctl stop wayvnc.service 2>/dev/null || true
 fi
 
 # Clean up unnecessary packages

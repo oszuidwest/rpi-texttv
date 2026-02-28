@@ -11,10 +11,7 @@ This repository provides a script to configure a Raspberry Pi as a narrowcasting
 - **Raspberry Pi 400** - Dual HDMI output support (keyboard computer)
 - **Raspberry Pi 500** - Dual HDMI output support (keyboard computer)
 
-This setup is tested with Raspberry Pi OS Bookworm (64-bit) Lite. There's no need to install a full desktop environment, as this script installs and configures a lightweight alternative.
-
-> [!WARNING]
-> Raspberry Pi OS 13 (Trixie) is currently **not supported** due to VNC compatibility issues. RealVNC is no longer included in Trixie, and raspi-config has not been updated for this version. Please use Raspberry Pi OS 12 (Bookworm) for full functionality.
+This setup is tested with Raspberry Pi OS Trixie (64-bit) Lite. There's no need to install a full desktop environment, as this script installs and configures a lightweight alternative.
 
 ### Dual Screen Support
 Raspberry Pi 4, Pi 5, Pi 400, and Pi 500 models support dual HDMI outputs. The script automatically detects these models and offers to configure both displays for simultaneous content display.
@@ -32,7 +29,7 @@ This configuration ensures efficient cooling while minimizing unnecessary fan ac
 When dual screen mode is enabled with mpv audio, the script automatically configures audio output to both HDMI ports. This ensures that the same audio stream plays through both connected displays. The implementation uses two synchronized mpv instances, each targeting a specific HDMI audio device (vc4hdmi0 and vc4hdmi1).
 
 ## Usage
-To get started, install Raspberry Pi OS Bookworm (64-bit) and log in as a non-privileged user. It's important to avoid using `su` or `sudo` for root access during this process. Run the following command to execute the setup script:
+To get started, install Raspberry Pi OS Trixie (64-bit) Lite and log in as a non-privileged user. It's important to avoid using `su` or `sudo` for root access during this process. Run the following command to execute the setup script:
 
 ```bash
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/oszuidwest/rpi-texttv/main/install.sh)"
