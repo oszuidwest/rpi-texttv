@@ -57,7 +57,7 @@ if [[ "$INSTALL_MPV" == "y" ]]; then
   ask_user "MPV_VOLUME" "75" "Enter the volume for mpv (0-100)" "str"
 fi
 
-ask_user "CHROME_URL" "https://teksttv.zuidwesttv.nl/" "What URL should be opened and displayed by Chrome?" "str"
+ask_user "CHROME_URL" "https://teksttv.zuidwest.cloud/zuidwest-1/" "What URL should be opened and displayed by Chrome?" "str"
 
 # All supported models (Pi 4/5/400/500) have dual HDMI
 ask_user "USE_DUAL_SCREEN" "n" "Configure second HDMI output for dual-screen? (y/n)" "y/n"
