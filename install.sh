@@ -55,7 +55,7 @@ prompt_user "INSTALL_MPV" "y" "Install mpv for audio stream behind narrowcast? (
 
 if [[ "$INSTALL_MPV" == "y" ]]; then
   prompt_user "MPV_URL" "https://icecast.zuidwest.cloud/zuidwest.stl" "Audio stream URL for mpv" "str"
-  prompt_user "MPV_VOLUME" "75" "MPV volume (0-100)" "num"
+  prompt_user "MPV_VOLUME" "60" "MPV volume (0-100)" "num"
   if [[ "$MPV_VOLUME" -lt 0 || "$MPV_VOLUME" -gt 100 ]]; then
     echo -e "${RED}Volume must be between 0 and 100${NC}"
     exit 1
@@ -160,7 +160,7 @@ CHROME_URL="${CHROME_URL}"
 CHROME_URL_2="${CHROME_URL_2:-$CHROME_URL}"
 INSTALL_MPV="${INSTALL_MPV:-n}"
 MPV_URL="${MPV_URL:-}"
-MPV_VOLUME="${MPV_VOLUME:-75}"
+MPV_VOLUME="${MPV_VOLUME:-60}"
 EOF
 
 cat << 'EOF' > ~/.config/openbox/autostart
@@ -220,7 +220,7 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/mpv --audio-device=alsa/hdmi:CARD=vc4hdmi$1,DEV=0 --volume=${MPV_VOLUME:-75} --network-timeout=2 --demuxer-readahead-secs=1 --user-agent="Raspberry Pi ($(hostname)) - HDMI$1" "${MPV_URL}"
+ExecStart=/usr/bin/mpv --audio-device=alsa/hdmi:CARD=vc4hdmi$1,DEV=0 --volume=${MPV_VOLUME:-60} --network-timeout=2 --demuxer-readahead-secs=1 --user-agent="Raspberry Pi ($(hostname)) - HDMI$1" "${MPV_URL}"
 Restart=always
 RestartSec=5
 StartLimitIntervalSec=0
