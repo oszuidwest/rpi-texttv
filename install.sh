@@ -2,7 +2,8 @@
 
 # External resources
 FALLBACKIMG_URL="https://raw.githubusercontent.com/oszuidwest/windows10-baseline/main/assets/ZWTV-wallpaper.png"
-FUNCTIONS_LIB_URL="https://raw.githubusercontent.com/oszuidwest/bash-functions/main/common-functions.sh"
+BASH_FUNCTIONS_REF="main"
+FUNCTIONS_LIB_URL="https://raw.githubusercontent.com/oszuidwest/bash-functions/${BASH_FUNCTIONS_REF}/common-functions.sh"
 EDID_DATA_URL="https://raw.githubusercontent.com/oszuidwest/rpi-texttv/main/edid.bin"
 
 # System paths
@@ -10,25 +11,29 @@ FUNCTIONS_LIB_PATH=$(mktemp)
 CMDLINE_FILE="/boot/firmware/cmdline.txt"
 CONFIG_FILE="/boot/firmware/config.txt"
 
-# Clean up temporary file on exit
 trap 'rm -f "$FUNCTIONS_LIB_PATH"' EXIT
 
 # Display configuration (1920x1080 @ 50Hz interlaced)
 VIDEO_OPTIONS="video=HDMI-A-1:1920x1080@50D"
 BOOT_OPTIONS="drm.edid_firmware=edid/edid.bin vc4.force_hotplug=0x01 consoleblank=1 logo.nologo"
 
-# Download the functions library
-if ! curl -s -o "$FUNCTIONS_LIB_PATH" "$FUNCTIONS_LIB_URL"; then
-  echo -e "*** Failed to download functions library. Please check your network connection! ***"
+clear || true
+
+if ! command -v curl >/dev/null 2>&1; then
+  echo "*** curl is required to download the functions library. ***"
+  exit 1
+fi
+
+if ! curl -fsSL -o "$FUNCTIONS_LIB_PATH" "$FUNCTIONS_LIB_URL"; then
+  echo "*** Failed to download functions library. Please check your network connection. ***"
   exit 1
 fi
 
 # shellcheck source=/dev/null
 source "$FUNCTIONS_LIB_PATH"
-# Set color variables and get sudo command
+
 set_colors
 SUDO=$(get_sudo)
-# Check required tools are available
 assert_tool "curl" "sed"
 
 # Validate environment (must run as regular user, on Linux 64-bit, Pi 4 or newer)
@@ -37,7 +42,6 @@ assert_os_linux
 assert_os_64bit
 assert_hw_rpi 4
 
-clear
 cat << "EOF"
  ______   _ ___ ______        _______ ____ _____   _______     __
 |__  / | | |_ _|  _ \ \      / / ____/ ___|_   _| |_   _\ \   / /
@@ -46,7 +50,7 @@ cat << "EOF"
 /____|\___/|___|____/  \_/\_/  |_____|____/ |_|     |_|    \_/   
 EOF
 
-echo -e "${GREEN}⎎ Raspberry Pi Tekst TV Set-up${NC}\n\n"
+echo -e "${GREEN}⎎ Raspberry Pi Tekst TV setup${NC}\n\n"
 
 # Gather user preferences
 prompt_user "DO_UPDATES" "y" "Perform OS updates? (y/n)" "y/n"
@@ -125,23 +129,41 @@ if [[ "$DO_UPDATES" == "y" ]]; then
   apt_update --silent
 fi
 
-# Install necessary packages
-apt_install --silent xserver-xorg x11-xserver-utils x11-utils xinit openbox unclutter-xfixes \
-  chromium feh ttf-mscorefonts-installer fonts-crosextra-carlito \
-  fonts-crosextra-caladea \
-  "$([[ "$INSTALL_MPV" == "y" ]] && echo "mpv")" \
-  "$([[ "$INSTALL_VNC" == "y" ]] && echo "realvnc-vnc-server")"
+# Install dependencies
+PACKAGES=(
+  xserver-xorg
+  x11-xserver-utils
+  x11-utils
+  xinit
+  openbox
+  unclutter-xfixes
+  chromium
+  feh
+  ttf-mscorefonts-installer
+  fonts-crosextra-carlito
+  fonts-crosextra-caladea
+)
+if [[ "$INSTALL_MPV" == "y" ]]; then
+  PACKAGES+=(mpv)
+fi
+if [[ "$INSTALL_VNC" == "y" ]]; then
+  PACKAGES+=(realvnc-vnc-server)
+fi
+apt_install --silent "${PACKAGES[@]}"
 
 # Set up the fallback wallpaper
 $SUDO mkdir -p /var/fallback
-file_download "$FALLBACKIMG_URL" "/var/fallback/fallback.png" "fallback wallpaper"
+file_download "$FALLBACKIMG_URL" "/var/fallback/fallback.png" "fallback wallpaper" --backup
 
 # Download EDID data
 $SUDO mkdir -p /usr/lib/firmware/edid/
-file_download "$EDID_DATA_URL" "/usr/lib/firmware/edid/edid.bin" "EDID configuration"
+file_download "$EDID_DATA_URL" "/usr/lib/firmware/edid/edid.bin" "EDID configuration" --backup
 
 # Configure Xorg to use the vc4 GPU (Pi 4/5 have v3d on card0 which confuses Xorg)
 $SUDO mkdir -p /usr/share/X11/xorg.conf.d
+if [ -f /usr/share/X11/xorg.conf.d/99-vc4.conf ] && ! file_backup /usr/share/X11/xorg.conf.d/99-vc4.conf; then
+  exit 1
+fi
 cat << 'XORGEOF' | $SUDO tee /usr/share/X11/xorg.conf.d/99-vc4.conf > /dev/null
 Section "Device"
   Identifier "vc4"
@@ -152,6 +174,9 @@ XORGEOF
 
 # Disable Chromium translate prompt via managed policy
 $SUDO mkdir -p /etc/chromium/policies/managed
+if [ -f /etc/chromium/policies/managed/no-translate.json ] && ! file_backup /etc/chromium/policies/managed/no-translate.json; then
+  exit 1
+fi
 echo '{"TranslateEnabled": false}' | $SUDO tee /etc/chromium/policies/managed/no-translate.json > /dev/null
 
 # Configure Openbox
@@ -159,6 +184,9 @@ echo -e "${BLUE}►► Configuring Openbox...${NC}"
 mkdir -p ~/.config/openbox
 
 # Save configuration
+if [ -f ~/.config/openbox/display.conf ] && ! file_backup ~/.config/openbox/display.conf; then
+  exit 1
+fi
 cat << EOF > ~/.config/openbox/display.conf
 USE_DUAL_SCREEN="${USE_DUAL_SCREEN:-n}"
 CHROME_URL="${CHROME_URL}"
@@ -168,6 +196,9 @@ MPV_URL="${MPV_URL:-}"
 MPV_VOLUME="${MPV_VOLUME:-60}"
 EOF
 
+if [ -f ~/.config/openbox/autostart ] && ! file_backup ~/.config/openbox/autostart; then
+  exit 1
+fi
 cat << 'EOF' > ~/.config/openbox/autostart
 #!/usr/bin/env bash
 [ -f "${HOME}/.config/openbox/display.conf" ] && . "${HOME}/.config/openbox/display.conf"
@@ -217,6 +248,9 @@ if [[ "$INSTALL_MPV" == "y" ]]; then
   mkdir -p ~/.config/systemd/user
 
   create_mpv_service() {
+    if [ -f ~/.config/systemd/user/mpv-hdmi"$1".service ] && ! file_backup ~/.config/systemd/user/mpv-hdmi"$1".service; then
+      exit 1
+    fi
     cat > ~/.config/systemd/user/mpv-hdmi"$1".service <<EOF
 [Unit]
 Description=MPV Audio Stream (HDMI$1)
@@ -245,11 +279,18 @@ fi
 
 # Start X11 automatically on tty1 login
 echo -e "${BLUE}►► Configuring auto-start...${NC}"
-cat << 'EOF' >> ~/.profile
+# shellcheck disable=SC2016 # Literal marker used to detect the managed profile block.
+PROFILE_AUTOSTART='if [ -z "$DISPLAY" ] && [ "$(tty)" = "/dev/tty1" ]; then'
+if ! grep -Fq "$PROFILE_AUTOSTART" ~/.profile 2>/dev/null; then
+  if [ -f ~/.profile ] && ! file_backup ~/.profile; then
+    exit 1
+  fi
+  cat << 'EOF' >> ~/.profile
 if [ -z "$DISPLAY" ] && [ "$(tty)" = "/dev/tty1" ]; then
   startx
 fi
 EOF
+fi
 
 # Configure boot behavior
 $SUDO raspi-config nonint do_boot_behaviour B2
