@@ -75,7 +75,10 @@ fi
 
 PI_MODEL=$(tr -d '\0' < /proc/device-tree/model 2>/dev/null || echo "")
 
+# Configure host time settings and journald storage limits
 set_timezone Europe/Amsterdam
+set_time_sync
+set_journald_limits
 
 echo -e "${BLUE}►► Applying video and boot options...${NC}"
 if ! file_backup "$CMDLINE_FILE"; then
