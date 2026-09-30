@@ -104,9 +104,10 @@ $SUDO sed -i \
 CMDLINE_OPTIONS="$VIDEO_OPTIONS $BOOT_OPTIONS"
 $SUDO sed -i "\$ s|\$| $CMDLINE_OPTIONS|" "$CMDLINE_FILE"
 
-# Pi 5: Configure active cooling fan (55°C on, 35°C off, 100% speed)
-if [[ "$PI_MODEL" =~ Pi\ 5 ]]; then
-  echo -e "${BLUE}►► Configuring cooling fan settings for Pi 5...${NC}"
+# Pi 5 and CM5: Configure active cooling fan (55°C on, 35°C off, 100% speed)
+# A CM5 reports "Compute Module 5" and has the same 4-pin fan header.
+if [[ "$PI_MODEL" =~ (Pi\ 5|Compute\ Module\ 5) ]]; then
+  echo -e "${BLUE}►► Configuring cooling fan settings...${NC}"
   if ! file_backup "$CONFIG_FILE"; then
     exit 1
   fi
