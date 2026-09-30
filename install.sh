@@ -145,13 +145,24 @@ file_download "$FALLBACKIMG_URL" "/var/fallback/fallback.png" "fallback wallpape
 $SUDO mkdir -p /usr/lib/firmware/edid/
 file_download "$EDID_DATA_URL" "/usr/lib/firmware/edid/edid.bin" "EDID configuration"
 
-# Configure Xorg to use the vc4 GPU (Pi 4/5 have v3d on card0 which confuses Xorg)
+# Point Xorg at the DRM card carrying the HDMI connectors. Usually v3d takes
+# card0 and vc4-drm card1, but which registers first is not fixed and the other
+# way round happens; Xorg then opens the render-only node, finds no outputs and
+# exits with "no screens found".
+KMSDEV="/dev/dri/card1"
+for CARD in /sys/class/drm/card[0-9]; do
+  if compgen -G "${CARD}-HDMI-A-*" > /dev/null; then
+    KMSDEV="/dev/dri/$(basename "$CARD")"
+    break
+  fi
+done
+
 $SUDO mkdir -p /usr/share/X11/xorg.conf.d
-cat << 'XORGEOF' | $SUDO tee /usr/share/X11/xorg.conf.d/99-vc4.conf > /dev/null
+cat << XORGEOF | $SUDO tee /usr/share/X11/xorg.conf.d/99-vc4.conf > /dev/null
 Section "Device"
   Identifier "vc4"
   Driver     "modesetting"
-  Option     "kmsdev" "/dev/dri/card1"
+  Option     "kmsdev" "${KMSDEV}"
 EndSection
 XORGEOF
 
