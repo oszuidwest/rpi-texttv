@@ -18,7 +18,7 @@ VIDEO_OPTIONS="video=HDMI-A-1:1920x1080@50D"
 BOOT_OPTIONS="drm.edid_firmware=edid/edid.bin vc4.force_hotplug=0x01 consoleblank=1 logo.nologo"
 
 # Download the functions library
-if ! curl -s -o "$FUNCTIONS_LIB_PATH" "$FUNCTIONS_LIB_URL"; then
+if ! curl -fsS -o "$FUNCTIONS_LIB_PATH" "$FUNCTIONS_LIB_URL"; then
   echo -e "*** Failed to download functions library. Please check your network connection! ***"
   exit 1
 fi
@@ -259,11 +259,14 @@ fi
 
 # Start X11 automatically on tty1 login
 echo -e "${BLUE}►► Configuring auto-start...${NC}"
-cat << 'EOF' >> ~/.profile
+if ! grep -Fq '# rpi-texttv: autostart X11 on tty1' ~/.profile 2>/dev/null; then
+  cat << 'EOF' >> ~/.profile
+# rpi-texttv: autostart X11 on tty1
 if [ -z "$DISPLAY" ] && [ "$(tty)" = "/dev/tty1" ]; then
   startx
 fi
 EOF
+fi
 
 # Configure boot behavior
 $SUDO raspi-config nonint do_boot_behaviour B2
