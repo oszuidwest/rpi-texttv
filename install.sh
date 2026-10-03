@@ -145,13 +145,16 @@ file_download "$FALLBACKIMG_URL" "/var/fallback/fallback.png" "fallback wallpape
 $SUDO mkdir -p /usr/lib/firmware/edid/
 file_download "$EDID_DATA_URL" "/usr/lib/firmware/edid/edid.bin" "EDID configuration"
 
-# Configure Xorg to use the vc4 GPU (Pi 4/5 have v3d on card0 which confuses Xorg)
+# Make Xorg drive the vc4 display device, matched by driver name: which of v3d
+# and vc4 gets card0 differs between boards, and opening v3d gives "no screens
+# found". Same rule Raspberry Pi OS desktop writes via gldriver-test (not on Lite).
 $SUDO mkdir -p /usr/share/X11/xorg.conf.d
 cat << 'XORGEOF' | $SUDO tee /usr/share/X11/xorg.conf.d/99-vc4.conf > /dev/null
-Section "Device"
-  Identifier "vc4"
-  Driver     "modesetting"
-  Option     "kmsdev" "/dev/dri/card1"
+Section "OutputClass"
+  Identifier  "vc4"
+  MatchDriver "vc4"
+  Driver      "modesetting"
+  Option      "PrimaryGPU" "true"
 EndSection
 XORGEOF
 
